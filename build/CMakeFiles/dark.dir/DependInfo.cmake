@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/adi/Documents/darkfire/src/main.cpp" "CMakeFiles/dark.dir/src/main.cpp.o" "gcc" "CMakeFiles/dark.dir/src/main.cpp.o.d"
+  "/home/adi/Documents/Compiler.Fire/src/main.cpp" "CMakeFiles/dark.dir/src/main.cpp.o" "gcc" "CMakeFiles/dark.dir/src/main.cpp.o.d"
   )
 
 # Targets to which this target links.
