@@ -1,0 +1,3 @@
+/home/adi/Documents/darkfire/build/CMakeFiles/dark.dir
+/home/adi/Documents/darkfire/build/CMakeFiles/edit_cache.dir
+/home/adi/Documents/darkfire/build/CMakeFiles/rebuild_cache.dir

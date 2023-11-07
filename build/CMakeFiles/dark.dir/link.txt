@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/dark.dir/src/main.cpp.o -o dark 
