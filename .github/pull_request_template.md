@@ -6,7 +6,7 @@
 ## Checklist
 
 - [ ] `make clean && make && make test && make examples` passes
-- [ ] `make debug && make examples` passes under ASan and UBSan
+- [ ] `make SANITIZE=1 test && make SANITIZE=1 examples` passes
 - [ ] `make format` leaves no changes
 - [ ] New behaviour has a test; a bug fix has a test that failed before it
 - [ ] A new diagnostic code is documented in `docs/diagnostics.md`

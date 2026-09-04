@@ -278,10 +278,12 @@ program. Full reference in **[docs/cli.md](docs/cli.md)**.
 ## Building
 
 ```console
-$ make                  # bin/fire, optimised
-$ make debug            # -O0 -g with ASan and UBSan
-$ make test             # unit and end-to-end suites
-$ make install          # to /usr/local/bin, or PREFIX=~/.local
+$ make                    # bin/fire, optimised
+$ make test               # unit and end-to-end suites
+$ make examples           # runs every program in examples/
+$ make bench              # times both backends
+$ make SANITIZE=1 test    # the whole suite under ASan and UBSan
+$ make install            # to /usr/local/bin, or PREFIX=~/.local
 $ make clean
 ```
 

@@ -55,15 +55,19 @@ jobs:
   sanitizers:
     name: ubuntu · asan + ubsan
     runs-on: ubuntu-latest
+    env:
+      ASAN_OPTIONS: detect_leaks=1
+      UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
     steps:
       - uses: actions/checkout@v4
+      - name: Install nasm
+        run: sudo apt-get update && sudo apt-get install -y nasm
       - name: Build with sanitizers
-        run: make debug -j"$(getconf _NPROCESSORS_ONLN)"
-      - name: Run the examples under the sanitizers
-        run: make examples
-        env:
-          ASAN_OPTIONS: detect_leaks=1
-          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: make SANITIZE=1 -j"$(getconf _NPROCESSORS_ONLN)"
+      - name: Test suite under the sanitizers
+        run: make SANITIZE=1 test
+      - name: Examples under the sanitizers
+        run: make SANITIZE=1 examples
 
   format:
     name: clang-format

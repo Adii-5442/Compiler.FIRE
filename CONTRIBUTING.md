@@ -7,12 +7,16 @@ make.
 ## Build and test
 
 ```console
-$ make                  # bin/fire
-$ make test             # unit + end-to-end
-$ make debug            # -O0 -g with ASan and UBSan
-$ make examples         # runs everything in examples/
-$ make format           # clang-format, in place
+$ make                    # bin/fire
+$ make test               # unit + end-to-end
+$ make examples           # runs everything in examples/
+$ make bench              # times the benchmarks on both backends
+$ make SANITIZE=1 test    # the whole suite under ASan and UBSan
+$ make format             # clang-format, in place
 ```
+
+`SANITIZE=1` works with every target, and puts its objects in a separate
+directory so switching between builds never links a mixture of the two.
 
 A C++20 compiler and `make` are the only requirements. `nasm` and `ld` are
 needed to exercise `fire build`; without them the native tests skip themselves
@@ -22,7 +26,7 @@ Before opening a pull request:
 
 ```console
 $ make clean && make && make test && make examples
-$ make debug && make examples          # under the sanitizers
+$ make SANITIZE=1 test && make SANITIZE=1 examples
 $ make format
 ```
 
