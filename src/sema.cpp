@@ -90,9 +90,8 @@ void Analyzer::push_scope()
     m_scopes.push_back(std::move(scope));
 }
 
-void Analyzer::pop_scope()
+void Analyzer::warn_unused(const Scope& scope)
 {
-    const Scope& scope = m_scopes.back();
     for (const Variable& variable : scope.variables) {
         if (!variable.used && !variable.is_parameter && variable.name.rfind('_', 0) != 0) {
             diags()
@@ -101,6 +100,12 @@ void Analyzer::pop_scope()
                 .help("prefix the name with `_` to silence this warning");
         }
     }
+}
+
+void Analyzer::pop_scope()
+{
+    warn_unused(m_scopes.back());
+    const Scope& scope = m_scopes.back();
     if (!m_functions.empty()) {
         // Sibling scopes reuse the same slots; the frame only has to be as
         // large as the deepest nesting, not as long as the whole function.
@@ -208,7 +213,15 @@ bool Analyzer::analyze(Program& program)
     m_functions.clear();
     m_function_table.clear();
     m_global_count = 0;
-    return analyze_fragment(program);
+
+    const bool ok = analyze_fragment(program);
+    // The global scope is never popped, because in the REPL it outlives every
+    // fragment. A whole-program run ends here, so this is the moment to report
+    // the file-scope names nothing ever read.
+    if (!m_scopes.empty()) {
+        warn_unused(m_scopes.front());
+    }
+    return ok && !diags().has_errors();
 }
 
 bool Analyzer::analyze_fragment(Program& program)
@@ -666,9 +679,9 @@ const Type* Analyzer::analyze_binary(BinaryExpr& expr)
             expr.span);
         builder.label(why);
         if (left->is_numeric() && right->is_numeric() && left != right) {
-            builder.help("Fire does not convert between `int` and `float` implicitly; write `float("
-                         + std::string { left->is(TypeKind::Int) ? "left" : "right" }
-                + " operand)`");
+            builder.help(std::string { "Fire does not convert between `int` and `float` "
+                                       "implicitly; wrap the " }
+                + (left->is(TypeKind::Int) ? "left" : "right") + " operand in `float(...)`");
         }
         if ((left->is(TypeKind::Str) || right->is(TypeKind::Str)) && expr.op == BinaryOp::Add) {
             builder.help("convert the other operand with `str(x)` to concatenate");

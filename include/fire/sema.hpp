@@ -79,6 +79,9 @@ private:
     };
 
     // -- scopes and variables ----------------------------------------------
+    /// Report every unused variable in `scope`; called when a scope closes,
+    /// and once over the global scope at the end of a whole-program run.
+    void warn_unused(const Scope& scope);
     void push_scope();
     void pop_scope();
     [[nodiscard]] bool at_global_scope() const { return m_scopes.size() == 1; }
