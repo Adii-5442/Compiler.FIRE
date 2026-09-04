@@ -1,3 +1,0 @@
-/home/adi/Documents/Compiler.Fire/cmake-build-debug/CMakeFiles/dark.dir
-/home/adi/Documents/Compiler.Fire/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/adi/Documents/Compiler.Fire/cmake-build-debug/CMakeFiles/rebuild_cache.dir

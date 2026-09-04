@@ -1,0 +1,32 @@
+# ---- Build output -------------------------------------------------------
+build/
+bin/
+obj/
+out/
+cmake-build-*/
+*.o
+*.d
+*.a
+*.so
+*.dylib
+
+# ---- Fire compiler artifacts -------------------------------------------
+*.fasm
+out.asm
+out.o
+/out
+a.out
+
+# ---- Editors / IDEs -----------------------------------------------------
+.idea/
+.vscode/
+.vs/
+*.swp
+*~
+.DS_Store
+
+# ---- Misc ---------------------------------------------------------------
+compile_commands.json
+.cache/
+perf.data*
+core
