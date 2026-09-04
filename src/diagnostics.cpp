@@ -55,7 +55,7 @@ namespace {
         std::uint32_t visual = 0;
         const std::uint32_t limit = column_1_based > 0 ? column_1_based - 1 : 0;
         for (std::uint32_t i = 0; i < limit; ++i) {
-            visual += (i < line.size() && line[i] == '\t') ? 4 : 1;
+            visual += (i < line.size() && line[i] == '\t') ? 4U : 1U;
         }
         return visual;
     }
