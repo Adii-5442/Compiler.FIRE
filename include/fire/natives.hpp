@@ -56,6 +56,7 @@ enum class NativeId : std::uint32_t {
     Replace,
     Repeat,
     Input,
+    Eof,
     Exit,
     Assert,
     Panic,

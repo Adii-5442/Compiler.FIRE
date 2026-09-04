@@ -254,6 +254,8 @@ namespace {
 
     const Type* check_nullary_str(const NativeCallCheck& check) { return check.types.str_type(); }
 
+    const Type* check_nullary_bool(const NativeCallCheck& check) { return check.types.bool_type(); }
+
     const Type* check_nullary_float(const NativeCallCheck& check)
     {
         return check.types.float_type();
@@ -346,6 +348,7 @@ namespace {
             { "replace", 3, 3, check_all_str<TypeKind::Str>, false, "replace every occurrence" },
             { "repeat", 2, 2, check_repeat, false, "concatenate a string with itself n times" },
             { "input", 0, 0, check_nullary_str, false, "read one line from stdin" },
+            { "eof", 0, 0, check_nullary_bool, false, "true once stdin has no more input" },
             { "exit", 1, 1, check_exit, true, "stop the program with a status code" },
             { "assert", 1, 2, check_assert, false, "abort unless a condition holds" },
             { "panic", 1, 1, check_panic, true, "abort with a message" },

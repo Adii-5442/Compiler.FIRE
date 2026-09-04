@@ -460,6 +460,16 @@ Value invoke_native(VM& vm, std::uint16_t id, std::vector<Value>& arguments)
         return Value::string(std::move(line));
     }
 
+    case NativeId::Eof: {
+        std::istream& stream = vm.in();
+        if (!stream.good()) {
+            return Value::boolean(true);
+        }
+        // peek() sets eofbit when there is nothing left, which is the only
+        // portable way to answer this before the next read.
+        return Value::boolean(stream.peek() == std::char_traits<char>::eof());
+    }
+
     case NativeId::Exit: {
         vm.out().flush();
         throw ExitSignal { static_cast<int>(arguments[0].as_int() & 0xFF) };
