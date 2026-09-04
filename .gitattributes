@@ -1,0 +1,18 @@
+# Normalise line endings so a checkout on Windows does not break the shell
+# scripts or the golden output of the end-to-end tests.
+* text=auto eol=lf
+
+*.fire   text eol=lf linguist-language=Fire
+*.sh     text eol=lf
+Makefile text eol=lf
+
+# GitHub's language statistics should describe the compiler, not its examples,
+# its tests or its editor plugins.
+examples/**  linguist-documentation
+tests/**     linguist-vendored
+editors/**   linguist-vendored
+bench/**     linguist-documentation
+docs/**      linguist-documentation
+
+# Rendered as an image, not as text, in diffs.
+assets/*.svg -diff

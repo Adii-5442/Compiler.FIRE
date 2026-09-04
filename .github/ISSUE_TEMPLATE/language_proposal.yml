@@ -1,0 +1,38 @@
+name: Language proposal
+description: Suggest a change or addition to the Fire language itself.
+labels: [language]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Fire is meant to stay small. The README lists what it deliberately does
+        not have — closures, structs, maps, generics, modules, an optimiser —
+        along with the reasoning. Proposing one of those is welcome; it just
+        needs to engage with why it was left out.
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: The proposal
+      description: What should the language do, with syntax if it needs any?
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: What does this let someone write that they cannot write today?
+      description: A concrete program, ideally one that is awkward in Fire as it stands.
+    validations:
+      required: true
+
+  - type: textarea
+    id: cost
+    attributes:
+      label: What does it cost?
+      description: |
+        What changes in the type checker, the VM, the native backend and the
+        documentation? An honest answer here is worth more than an enthusiastic
+        one.
+    validations:
+      required: true

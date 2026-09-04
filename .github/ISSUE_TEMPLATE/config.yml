@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://github.com/Adii-5442/Compiler.FIRE/tree/master/docs
+    about: Language reference, grammar, architecture, bytecode and CLI references, and the diagnostic index.

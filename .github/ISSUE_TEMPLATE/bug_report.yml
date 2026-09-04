@@ -1,0 +1,66 @@
+name: Bug report
+description: The compiler rejected valid code, accepted invalid code, or produced the wrong answer.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. The most useful thing you can include is the
+        smallest `.fire` program that still shows the problem.
+
+  - type: textarea
+    id: program
+    attributes:
+      label: The program
+      description: The smallest input that reproduces it.
+      render: rust
+      placeholder: |
+        fn main_thing(n: int) -> int {
+            return n + 1;
+        }
+        println(main_thing(1));
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+      description: Paste the full output, including any diagnostic.
+      render: shell
+    validations:
+      required: true
+
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Which backend
+      options:
+        - fire run (bytecode VM)
+        - fire build (native x86-64)
+        - both
+        - "fire check only: it never got as far as running"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `fire version`, and the commit if you built from source.
+      placeholder: fire 1.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: Platform and compiler
+      placeholder: Ubuntu 24.04, g++ 13.3
