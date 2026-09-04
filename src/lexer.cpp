@@ -426,6 +426,9 @@ std::vector<Token> Lexer::tokenize()
         case '~':
             push(tokens, TokenType::Tilde, start);
             break;
+        case '^':
+            push(tokens, TokenType::Caret, start);
+            break;
         case '+':
             push(tokens, match('=') ? TokenType::PlusAssign : TokenType::Plus, start);
             break;
