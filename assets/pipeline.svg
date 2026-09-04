@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 300" width="1120" height="300" role="img" aria-label="The Fire compiler pipeline: source, lexer, parser, analyzer, code generator, then either the bytecode VM or the x86-64 backend">
+  <title>The Fire compiler pipeline</title>
+  <defs>
+    <linearGradient id="pipeEmber" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#F4511E"/>
+      <stop offset="100%" stop-color="#FFC64B"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#4A5560"/>
+    </marker>
+    <marker id="arrowHot" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#FF8A1F"/>
+    </marker>
+  </defs>
+
+  <rect width="1120" height="300" rx="12" fill="#0B0D11"/>
+  <rect x="0.5" y="0.5" width="1119" height="299" rx="12" fill="none" stroke="#1E232B"/>
+
+  <g font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+    <!-- input -->
+    <g transform="translate(28 96)">
+      <rect width="118" height="70" rx="9" fill="#12161C" stroke="#FF8A1F" stroke-opacity="0.55"/>
+      <text x="59" y="32" text-anchor="middle" font-size="15" fill="#E6EDF3">app.fire</text>
+      <text x="59" y="52" text-anchor="middle" font-size="11.5" fill="#6E7781" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">source</text>
+    </g>
+
+    <!-- passes -->
+    <g transform="translate(190 96)">
+      <rect width="122" height="70" rx="9" fill="#12161C" stroke="#2A313B"/>
+      <text x="61" y="30" text-anchor="middle" font-size="15" fill="#E6EDF3">Lexer</text>
+      <text x="61" y="50" text-anchor="middle" font-size="11" fill="#6E7781" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">lexer.cpp</text>
+    </g>
+    <g transform="translate(356 96)">
+      <rect width="122" height="70" rx="9" fill="#12161C" stroke="#2A313B"/>
+      <text x="61" y="30" text-anchor="middle" font-size="15" fill="#E6EDF3">Parser</text>
+      <text x="61" y="50" text-anchor="middle" font-size="11" fill="#6E7781" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">parser.cpp</text>
+    </g>
+    <g transform="translate(522 96)">
+      <rect width="122" height="70" rx="9" fill="#12161C" stroke="#2A313B"/>
+      <text x="61" y="30" text-anchor="middle" font-size="15" fill="#E6EDF3">Analyzer</text>
+      <text x="61" y="50" text-anchor="middle" font-size="11" fill="#6E7781" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">sema.cpp</text>
+    </g>
+    <g transform="translate(688 96)">
+      <rect width="122" height="70" rx="9" fill="#12161C" stroke="#2A313B"/>
+      <text x="61" y="30" text-anchor="middle" font-size="15" fill="#E6EDF3">CodeGen</text>
+      <text x="61" y="50" text-anchor="middle" font-size="11" fill="#6E7781" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">codegen.cpp</text>
+    </g>
+
+    <!-- outputs -->
+    <g transform="translate(882 44)">
+      <rect width="200" height="70" rx="9" fill="#12161C" stroke="#FF8A1F" stroke-opacity="0.55"/>
+      <text x="100" y="30" text-anchor="middle" font-size="15" fill="#E6EDF3">Bytecode VM</text>
+      <text x="100" y="50" text-anchor="middle" font-size="11" fill="#6E7781" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">fire run</text>
+    </g>
+    <g transform="translate(882 148)">
+      <rect width="200" height="70" rx="9" fill="#12161C" stroke="#FF8A1F" stroke-opacity="0.55"/>
+      <text x="100" y="30" text-anchor="middle" font-size="15" fill="#E6EDF3">x86-64 backend</text>
+      <text x="100" y="50" text-anchor="middle" font-size="11" fill="#6E7781" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">fire build → nasm → ld</text>
+    </g>
+
+    <!-- flow -->
+    <g stroke="#4A5560" stroke-width="1.6" fill="none" marker-end="url(#arrow)">
+      <path d="M146 131 L184 131"/>
+      <path d="M312 131 L350 131"/>
+      <path d="M478 131 L516 131"/>
+      <path d="M644 131 L682 131"/>
+    </g>
+    <g stroke="#FF8A1F" stroke-width="1.6" fill="none" marker-end="url(#arrowHot)" opacity="0.8">
+      <path d="M810 131 C846 131 846 79 876 79"/>
+      <path d="M810 131 C846 131 846 183 876 183"/>
+    </g>
+
+    <!-- edge labels -->
+    <g font-size="10.5" fill="#59626D" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">
+      <text x="165" y="124">bytes</text>
+      <text x="331" y="124">tokens</text>
+      <text x="497" y="124">AST</text>
+      <text x="662" y="122" font-size="10">typed AST</text>
+      <text x="845" y="60">chunks</text>
+      <text x="845" y="206">asm</text>
+    </g>
+
+    <!-- diagnostics bar -->
+    <g transform="translate(28 236)">
+      <rect width="1054" height="40" rx="9" fill="#12161C" stroke="#2A313B" stroke-dasharray="4 4"/>
+      <text x="18" y="25" font-size="12.5" fill="#8B949E">
+        <tspan fill="#FF8A1F" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">DiagnosticEngine</tspan>
+        <tspan> — every pass reports here and keeps going, so one run surfaces every problem in the file</tspan>
+      </text>
+    </g>
+    <g stroke="#2A313B" stroke-width="1.2" stroke-dasharray="3 4" fill="none">
+      <path d="M251 166 L251 236"/>
+      <path d="M417 166 L417 236"/>
+      <path d="M583 166 L583 236"/>
+      <path d="M982 218 L982 236"/>
+    </g>
+  </g>
+</svg>
