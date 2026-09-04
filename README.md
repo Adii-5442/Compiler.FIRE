@@ -53,6 +53,8 @@ Hello, world!
 - [The `fire` command](#the-fire-command)
 - [Building](#building)
 - [Testing](#testing)
+- [Performance](#performance)
+- [Editor support](#editor-support)
 - [Project layout](#project-layout)
 - [What Fire is not](#what-fire-is-not)
 - [License](#license)
@@ -324,6 +326,35 @@ Two suites:
   diagnostic codes; programs under `tests/native/` are compiled by both
   backends and diffed against each other.
 
+## Performance
+
+```console
+$ tools/bench.sh
+program                  vm     native   notes
+---------------------------------------------------------------
+arrays               0.328s        n/a   outside the native backend's subset
+fib                  0.175s     0.007s
+iterate              0.300s        n/a   outside the native backend's subset
+loops                0.658s     0.021s
+```
+
+Four microbenchmarks isolating call overhead, dispatch, array access and
+builtin call cost. They exist to answer *did that change help?*, not *how fast
+is Fire?* — see [`bench/README.md`](bench/README.md).
+
+The gap between the columns is the honest cost of a bytecode interpreter, and
+the reason the native backend is worth having even for the subset it covers.
+
+## Editor support
+
+Syntax highlighting for `.fire` files ships in [`editors/`](editors/): a Vim
+syntax file, and a VS Code extension whose TextMate grammar also works in
+Sublime, Zed and anything else that reads them.
+
+Both follow the real lexer — nesting block comments, validated escape
+sequences, all four integer bases — and highlight builtins only in call
+position, because they are not reserved words.
+
 ## Project layout
 
 ```
@@ -343,7 +374,10 @@ src/              the compiler
   main.cpp            the command-line interface
 examples/         13 programs, written to be read
 tests/            unit tests, end-to-end cases, and their runners
+bench/            microbenchmarks, run by tools/bench.sh
 docs/             language reference, grammar, architecture, bytecode, CLI
+editors/          Vim and VS Code syntax highlighting
+assets/           the banner and pipeline diagram, hand-written SVG
 ```
 
 ## What Fire is not
