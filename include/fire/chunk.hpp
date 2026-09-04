@@ -32,6 +32,7 @@ enum class OpCode : std::uint8_t {
     PushFalse,
     Pop,
     Dup,
+    Dup2,       ///< duplicate the top two values, order preserved
 
     // -- variables ---------------------------------------------------------
     GetLocal,   ///< u16 slot

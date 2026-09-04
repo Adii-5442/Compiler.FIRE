@@ -19,6 +19,8 @@ const char* opcode_name(OpCode op)
         return "POP";
     case OpCode::Dup:
         return "DUP";
+    case OpCode::Dup2:
+        return "DUP2";
     case OpCode::GetLocal:
         return "GET_LOCAL";
     case OpCode::SetLocal:
