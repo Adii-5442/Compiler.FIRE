@@ -1,0 +1,27 @@
+# Fire compiler style.
+#
+# WebKit is the closest built-in base to what this codebase already looks like:
+# four-space indent, attached braces on control flow, braces on their own line
+# for functions and types.
+---
+Language: Cpp
+BasedOnStyle: WebKit
+
+ColumnLimit: 100
+IndentWidth: 4
+UseTab: Never
+AccessModifierOffset: -4
+
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: Yes
+BreakBeforeBinaryOperators: NonAssignment
+BreakConstructorInitializers: BeforeComma
+PointerAlignment: Left
+
+SortIncludes: CaseSensitive
+IncludeBlocks: Preserve
+
+SpaceAfterTemplateKeyword: false
+Cpp11BracedListStyle: false

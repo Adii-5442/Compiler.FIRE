@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.os }} · ${{ matrix.cxx }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, cxx: g++ }
+          - { os: ubuntu-latest, cxx: clang++ }
+          - { os: macos-latest, cxx: clang++ }
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # nasm is only needed by `fire build`; on macOS the native backend
+      # targets Linux, so the end-to-end runner skips those cases there.
+      - name: Install nasm
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y nasm
+
+      - name: Build
+        run: make CXX=${{ matrix.cxx }} -j"$(getconf _NPROCESSORS_ONLN)"
+
+      - name: Unit tests
+        run: make unit CXX=${{ matrix.cxx }}
+
+      - name: End-to-end tests
+        if: runner.os == 'Linux'
+        run: make e2e
+
+      - name: Examples
+        if: runner.os == 'Linux'
+        run: make examples
+
+      - name: Native backend round trip
+        if: runner.os == 'Linux'
+        run: |
+          ./bin/fire build examples/native.fire -o /tmp/native
+          diff <(/tmp/native) <(./bin/fire run examples/native.fire)
+          echo "native and VM output agree"
+
+  sanitizers:
+    name: ubuntu · asan + ubsan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build with sanitizers
+        run: make debug -j"$(getconf _NPROCESSORS_ONLN)"
+      - name: Run the examples under the sanitizers
+        run: make examples
+        env:
+          ASAN_OPTIONS: detect_leaks=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+
+  format:
+    name: clang-format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check formatting
+        run: |
+          clang-format --version
+          clang-format --dry-run --Werror src/*.cpp include/fire/*.hpp tests/unit/*.cpp
