@@ -88,9 +88,14 @@ private:
     [[nodiscard]] Value& peek(std::size_t distance = 0);
 
     // -- decoding -----------------------------------------------------------
-    [[nodiscard]] std::uint8_t read_u8();
-    [[nodiscard]] std::uint16_t read_u16();
-    [[nodiscard]] std::uint32_t read_u32();
+    //
+    // The interpreter loop caches `&m_frames.back()` in a local and passes it
+    // in, because otherwise every operand read re-derives it and the vector
+    // indirection shows up in profiles of a tight loop. The pointer is
+    // refreshed only where the frame stack changes.
+    [[nodiscard]] std::uint8_t read_u8(Frame& frame);
+    [[nodiscard]] std::uint16_t read_u16(Frame& frame);
+    [[nodiscard]] std::uint32_t read_u32(Frame& frame);
 
     void call_function(std::uint16_t index, std::uint8_t argument_count);
     void call_native(std::uint16_t id, std::uint8_t argument_count);
@@ -105,6 +110,10 @@ private:
     std::vector<Value> m_stack;
     std::vector<Frame> m_frames;
     std::vector<Value> m_globals;
+    /// Reused argument buffer for builtin calls. A builtin never re-enters the
+    /// interpreter, so one buffer is enough, and reusing it keeps a heap
+    /// allocation out of every `len()` in a loop.
+    std::vector<Value> m_native_args;
     std::uint64_t m_rng = 0x2545F4914F6CDD1DULL;
 };
 

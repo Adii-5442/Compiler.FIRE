@@ -18,6 +18,7 @@ VM::VM(const Module& module, Options options)
     m_globals.assign(m_module.global_count, Value::integer(0));
     m_stack.reserve(1024);
     m_frames.reserve(64);
+    m_native_args.reserve(8);
 }
 
 void VM::adopt_globals(std::vector<Value> globals)
@@ -57,23 +58,17 @@ Value& VM::peek(std::size_t distance)
     return m_stack[m_stack.size() - 1 - distance];
 }
 
-std::uint8_t VM::read_u8()
-{
-    Frame& frame = m_frames.back();
-    return frame.function->chunk.byte_at(frame.ip++);
-}
+std::uint8_t VM::read_u8(Frame& frame) { return frame.function->chunk.byte_at(frame.ip++); }
 
-std::uint16_t VM::read_u16()
+std::uint16_t VM::read_u16(Frame& frame)
 {
-    Frame& frame = m_frames.back();
     const std::uint16_t value = frame.function->chunk.read_u16(frame.ip);
     frame.ip += 2;
     return value;
 }
 
-std::uint32_t VM::read_u32()
+std::uint32_t VM::read_u32(Frame& frame)
 {
-    Frame& frame = m_frames.back();
     const std::uint32_t value = frame.function->chunk.read_u32(frame.ip);
     frame.ip += 4;
     return value;
@@ -99,27 +94,29 @@ void VM::call_function(std::uint16_t index, std::uint8_t argument_count)
 
 void VM::call_native(std::uint16_t id, std::uint8_t argument_count)
 {
-    std::vector<Value> arguments;
-    arguments.reserve(argument_count);
+    m_native_args.clear();
     for (std::size_t i = 0; i < argument_count; ++i) {
-        arguments.push_back(std::move(m_stack[m_stack.size() - argument_count + i]));
+        m_native_args.push_back(std::move(m_stack[m_stack.size() - argument_count + i]));
     }
     m_stack.resize(m_stack.size() - argument_count);
-    push(invoke_native(*this, id, arguments));
+    push(invoke_native(*this, id, m_native_args));
 }
 
 void VM::execute()
 {
+    // Cached for the duration of one frame; refreshed wherever the frame stack
+    // changes, which is only CALL, RET and RET_VOID.
+    Frame* frame = &m_frames.back();
+
     while (true) {
-        Frame& frame = m_frames.back();
         if (m_options.trace) {
-            disassemble_instruction(err(), frame.function->chunk, frame.ip, m_options.source);
+            disassemble_instruction(err(), frame->function->chunk, frame->ip, m_options.source);
         }
 
-        const auto op = static_cast<OpCode>(read_u8());
+        const auto op = static_cast<OpCode>(read_u8(*frame));
         switch (op) {
         case OpCode::Constant:
-            push(frame.function->chunk.constants()[read_u16()]);
+            push(frame->function->chunk.constants()[read_u16(*frame)]);
             break;
         case OpCode::PushTrue:
             push(Value::boolean(true));
@@ -142,18 +139,18 @@ void VM::execute()
         }
 
         case OpCode::GetLocal:
-            push(m_stack[m_frames.back().base + read_u16()]);
+            push(m_stack[frame->base + read_u16(*frame)]);
             break;
         case OpCode::SetLocal: {
-            const std::uint16_t slot = read_u16();
-            m_stack[m_frames.back().base + slot] = pop();
+            const std::uint16_t slot = read_u16(*frame);
+            m_stack[frame->base + slot] = pop();
             break;
         }
         case OpCode::GetGlobal:
-            push(m_globals[read_u16()]);
+            push(m_globals[read_u16(*frame)]);
             break;
         case OpCode::SetGlobal: {
-            const std::uint16_t slot = read_u16();
+            const std::uint16_t slot = read_u16(*frame);
             m_globals[slot] = pop();
             break;
         }
@@ -326,7 +323,7 @@ void VM::execute()
         }
 
         case OpCode::MakeArray: {
-            const std::uint16_t count = read_u16();
+            const std::uint16_t count = read_u16(*frame);
             std::vector<Value> elements;
             elements.reserve(count);
             for (std::size_t i = 0; i < count; ++i) {
@@ -375,57 +372,60 @@ void VM::execute()
         }
 
         case OpCode::Jump:
-            frame.ip = read_u32();
+            frame->ip = read_u32(*frame);
             break;
         case OpCode::JumpIfFalse: {
-            const std::uint32_t target = read_u32();
+            const std::uint32_t target = read_u32(*frame);
             if (!pop().as_bool()) {
-                m_frames.back().ip = target;
+                frame->ip = target;
             }
             break;
         }
         case OpCode::JumpIfFalsePeek: {
-            const std::uint32_t target = read_u32();
+            const std::uint32_t target = read_u32(*frame);
             if (!peek().as_bool()) {
-                m_frames.back().ip = target;
+                frame->ip = target;
             }
             break;
         }
         case OpCode::JumpIfTruePeek: {
-            const std::uint32_t target = read_u32();
+            const std::uint32_t target = read_u32(*frame);
             if (peek().as_bool()) {
-                m_frames.back().ip = target;
+                frame->ip = target;
             }
             break;
         }
 
         case OpCode::Call: {
-            const std::uint16_t index = read_u16();
-            const std::uint8_t argument_count = read_u8();
+            const std::uint16_t index = read_u16(*frame);
+            const std::uint8_t argument_count = read_u8(*frame);
             call_function(index, argument_count);
+            frame = &m_frames.back(); // the frame stack moved
             break;
         }
         case OpCode::CallNative: {
-            const std::uint16_t id = read_u16();
-            const std::uint8_t argument_count = read_u8();
+            const std::uint16_t id = read_u16(*frame);
+            const std::uint8_t argument_count = read_u8(*frame);
             call_native(id, argument_count);
             break;
         }
         case OpCode::Return: {
             Value result = pop();
-            const std::size_t base = m_frames.back().base;
+            const std::size_t base = frame->base;
             m_frames.pop_back();
             m_stack.resize(base);
             push(std::move(result));
+            frame = &m_frames.back();
             break;
         }
         case OpCode::ReturnVoid: {
-            const std::size_t base = m_frames.back().base;
+            const std::size_t base = frame->base;
             m_frames.pop_back();
             m_stack.resize(base);
             // A void call still leaves one value, so every call site can pop
             // unconditionally.
             push(Value::integer(0));
+            frame = &m_frames.back();
             break;
         }
         case OpCode::Halt:
