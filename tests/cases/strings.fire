@@ -1,0 +1,10 @@
+//= FIRE fire 4 f e
+//= ["a", "b", "c"] a-b-c
+//= 3 -1 hello, world
+//= 128293 true
+//= x=1 y=2.5 z=true
+println(upper("fire"), lower("FIRE"), len("fire"), "fire"[0], "fire"[3]);
+println(split("a,b,c", ","), join(["a", "b", "c"], "-"));
+println(find("haystack", "stack"), find("haystack", "zz"), replace("hello, there", "there", "world"));
+println(ord(chr(128293)), chr(128293) == chr(128293));
+println("x=" + str(1), "y=" + str(2.5), "z=" + str(true));

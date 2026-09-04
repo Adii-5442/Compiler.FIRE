@@ -1,0 +1,4 @@
+//= Hello, Fire!
+//= 2 + 2 = 4
+println("Hello, Fire!");
+println("2 + 2 =", 2 + 2);

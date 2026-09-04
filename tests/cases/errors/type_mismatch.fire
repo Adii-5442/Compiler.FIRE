@@ -1,0 +1,4 @@
+//error E0201
+//error E0203
+let mixed = 1 + 2.0;
+let annotated: int = "text";

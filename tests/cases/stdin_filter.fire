@@ -1,0 +1,13 @@
+//in alpha
+//in beta
+//in gamma
+//= 3 lines
+//= ALPHA
+//= BETA
+//= GAMMA
+let lines: [str] = [];
+while !eof() {
+    push(lines, upper(input()));
+}
+println(len(lines), "lines");
+for line in lines { println(line); }

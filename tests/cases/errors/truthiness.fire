@@ -1,0 +1,5 @@
+//error E0223
+let n = 1;
+if n {
+    println("Fire has no truthiness");
+}

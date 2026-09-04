@@ -1,0 +1,4 @@
+//error E0217
+//error E0221
+println(nowhere);
+missing_function(1);

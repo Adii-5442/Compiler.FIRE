@@ -1,0 +1,4 @@
+// `args()` returns whatever followed `--` on the command line; the runner
+// passes none, so this checks the empty case.
+//= 0 []
+println(len(args()), args());

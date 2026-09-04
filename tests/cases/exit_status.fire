@@ -1,0 +1,3 @@
+// The original one-line program this compiler started from still compiles.
+//exit 12
+exit(12);

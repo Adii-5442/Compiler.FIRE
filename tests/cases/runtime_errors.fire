@@ -1,0 +1,9 @@
+// A runtime fault should report the source line and exit 70.
+//exit 70
+//= before
+//~ runtime error: index 5 is out of bounds
+//~ stack backtrace
+fn get(xs: [int], i: int) -> int { return xs[i]; }
+println("before");
+println(get([1, 2], 5));
+println("unreachable");

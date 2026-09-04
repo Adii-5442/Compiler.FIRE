@@ -1,0 +1,4 @@
+//error E0215
+//error E0216
+let empty = [];
+let mixed = [1, "two"];

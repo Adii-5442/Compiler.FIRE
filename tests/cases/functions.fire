@@ -1,0 +1,23 @@
+//= 120
+//= 55
+//= true false
+//= 6
+//= void functions return nothing
+fn factorial(n: int) -> int {
+    if n <= 1 { return 1; }
+    return n * factorial(n - 1);
+}
+fn fib(n: int) -> int {
+    if n < 2 { return n; }
+    return fib(n - 1) + fib(n - 2);
+}
+fn even(n: int) -> bool { if n == 0 { return true; } return odd(n - 1); }
+fn odd(n: int) -> bool { if n == 0 { return false; } return even(n - 1); }
+fn sum3(a: int, b: int, c: int) -> int { return a + b + c; }
+fn announce(text: str) { println(text); }
+
+println(factorial(5));
+println(fib(10));
+println(even(4), odd(4));
+println(sum3(1, 2, 3));
+announce("void functions return nothing");

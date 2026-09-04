@@ -1,0 +1,33 @@
+//= small
+//= 0 1 2
+//= 1 3
+//= 3 2 1
+//= abc
+//= 6
+let n = 5;
+if n > 100 { println("large"); } elif n > 10 { println("medium"); } else { println("small"); }
+
+let seen: [str] = [];
+for i in 0..3 { push(seen, str(i)); }
+println(join(seen, " "));
+
+let odds: [str] = [];
+for i in 0..5 {
+    if i % 2 == 0 { continue; }
+    if i > 3 { break; }
+    push(odds, str(i));
+}
+println(join(odds, " "));
+
+let countdown = 3;
+let steps: [str] = [];
+while countdown > 0 { push(steps, str(countdown)); countdown -= 1; }
+println(join(steps, " "));
+
+let letters = "";
+for c in "abc" { letters += c; }
+println(letters);
+
+let total = 0;
+for v in [1, 2, 3] { total += v; }
+println(total);
