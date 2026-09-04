@@ -60,7 +60,7 @@ Hello, world!
 ## Quick start
 
 ```console
-$ git clone https://github.com/adityaXsharma/Compiler.FIRE.git
+$ git clone https://github.com/Adii-5442/Compiler.FIRE.git
 $ cd Compiler.FIRE
 $ make
 built bin/fire

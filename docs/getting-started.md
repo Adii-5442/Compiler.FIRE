@@ -9,7 +9,7 @@ between.
 You need a C++20 compiler and `make`. Nothing else.
 
 ```console
-$ git clone https://github.com/adityaXsharma/Compiler.FIRE.git
+$ git clone https://github.com/Adii-5442/Compiler.FIRE.git
 $ cd Compiler.FIRE
 $ make
 built bin/fire
