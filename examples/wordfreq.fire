@@ -1,0 +1,90 @@
+// Reads text from standard input and reports the most frequent words.
+//
+//     fire run examples/wordfreq.fire < README.md
+//
+// Fire has no hash map, so this uses two parallel arrays — the shape you would
+// reach for in any language before the standard library arrives.
+
+let words: [str] = [];
+let counts: [int] = [];
+
+fn index_of(word: str) -> int {
+    for i in 0..len(words) {
+        if words[i] == word {
+            return i;
+        }
+    }
+    return -1;
+}
+
+fn record(word: str) {
+    if len(word) == 0 {
+        return;
+    }
+    const at = index_of(word);
+    if at < 0 {
+        push(words, word);
+        push(counts, 1);
+    } else {
+        counts[at] += 1;
+    }
+}
+
+/// Keep letters and digits, fold case, and treat everything else as a break.
+fn tokenize(line: str) -> [str] {
+    let out: [str] = [];
+    let current = "";
+    for character in lower(line) {
+        const code = ord(character);
+        const is_word = (code >= ord("a") && code <= ord("z"))
+            || (code >= ord("0") && code <= ord("9")) || character == "'";
+        if is_word {
+            current += character;
+        } else {
+            push(out, current);
+            current = "";
+        }
+    }
+    push(out, current);
+    return out;
+}
+
+let lines = 0;
+// `eof()` is what separates "a blank line" from "no more input"; without it a
+// filter like this would stop at the first empty line of its input.
+while !eof() {
+    const line = input();
+    lines += 1;
+    for word in tokenize(line) {
+        record(word);
+    }
+}
+
+if len(words) == 0 {
+    println("no input; try:  fire run examples/wordfreq.fire < README.md");
+    exit(0);
+}
+
+// Selection sort over the parallel arrays, most frequent first.
+for i in 0..len(counts) {
+    let best = i;
+    for j in (i + 1)..len(counts) {
+        if counts[j] > counts[best] || (counts[j] == counts[best] && words[j] < words[best]) {
+            best = j;
+        }
+    }
+    const count = counts[i];
+    counts[i] = counts[best];
+    counts[best] = count;
+    const word = words[i];
+    words[i] = words[best];
+    words[best] = word;
+}
+
+println("read", lines, "lines,", len(words), "distinct words");
+println("");
+const shown = min(15, len(words));
+for i in 0..shown {
+    let bar = repeat("#", min(counts[i], 40));
+    println(str(counts[i]) + "  " + bar + "  " + words[i]);
+}

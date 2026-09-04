@@ -1,0 +1,62 @@
+// The sieve of Eratosthenes, plus a trial-division check to compare against.
+
+fn sieve(limit: int) -> [int] {
+    let composite: [bool] = [];
+    for _i in 0..(limit + 1) {
+        push(composite, false);
+    }
+
+    let primes: [int] = [];
+    for n in 2..(limit + 1) {
+        if composite[n] {
+            continue;
+        }
+        push(primes, n);
+        // Start at n*n: every smaller multiple already has a smaller factor.
+        let multiple = n * n;
+        while multiple <= limit {
+            composite[multiple] = true;
+            multiple += n;
+        }
+    }
+    return primes;
+}
+
+fn is_prime(n: int) -> bool {
+    if n < 2 {
+        return false;
+    }
+    if n % 2 == 0 {
+        return n == 2;
+    }
+    let divisor = 3;
+    while divisor * divisor <= n {
+        if n % divisor == 0 {
+            return false;
+        }
+        divisor += 2;
+    }
+    return true;
+}
+
+const limit = 100;
+let primes = sieve(limit);
+println("primes below", limit, "->", len(primes), "of them");
+println(primes);
+
+// The two methods must agree, or one of them is wrong.
+let disagreements = 0;
+for n in 0..(limit + 1) {
+    let by_sieve = false;
+    for p in primes {
+        if p == n {
+            by_sieve = true;
+            break;
+        }
+    }
+    if by_sieve != is_prime(n) {
+        disagreements += 1;
+    }
+}
+println("disagreements between sieve and trial division:", disagreements);
+assert(disagreements == 0, "the two primality tests disagree");

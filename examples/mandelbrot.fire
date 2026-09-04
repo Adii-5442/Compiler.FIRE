@@ -1,0 +1,46 @@
+// The Mandelbrot set, rendered as ASCII. Exercises `float` arithmetic, nested
+// loops and early exit.
+
+const width = 78;
+const height = 26;
+const max_iterations = 200;
+const palette = " .:-=+*#%";
+
+/// Escape time of the point c = (cx, cy): how many iterations of
+/// z <- z^2 + c it survives before |z| exceeds 2.
+fn escape_time(cx: float, cy: float) -> int {
+    let zx = 0.0;
+    let zy = 0.0;
+    for i in 0..max_iterations {
+        const zx2 = zx * zx;
+        const zy2 = zy * zy;
+        if zx2 + zy2 > 4.0 {
+            return i;
+        }
+        // (zx + i*zy)^2 = (zx^2 - zy^2) + i*(2*zx*zy)
+        zy = 2.0 * zx * zy + cy;
+        zx = zx2 - zy2 + cx;
+    }
+    return max_iterations;
+}
+
+fn shade(iterations: int) -> str {
+    // Points that never escape are the set itself; everything else is shaded
+    // by how long it survived, so the palette must not begin where the set
+    // ends or the two would be indistinguishable.
+    if iterations >= max_iterations {
+        return "@";
+    }
+    const index = (iterations * (len(palette) - 1)) / 40;
+    return palette[min(index, len(palette) - 1)];
+}
+
+for row in 0..height {
+    let line = "";
+    const cy = -1.2 + 2.4 * float(row) / float(height - 1);
+    for column in 0..width {
+        const cx = -2.2 + 3.0 * float(column) / float(width - 1);
+        line += shade(escape_time(cx, cy));
+    }
+    println(line);
+}

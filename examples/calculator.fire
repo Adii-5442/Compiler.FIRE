@@ -1,0 +1,216 @@
+// A recursive-descent expression evaluator — written in Fire, for Fire's own
+// benefit: it is the same shape as the parser in src/parser.cpp, at a scale
+// you can read in one sitting.
+//
+// Grammar:
+//     expression := term (("+" | "-") term)*
+//     term       := factor (("*" | "/" | "%") factor)*
+//     factor     := "-" factor | primary
+//     primary    := number | "(" expression ")" | name "(" expression ")"
+
+// File-scope `let` makes a global, visible inside every function below. This
+// is the parser's cursor.
+let source = "";
+let position = 0;
+let failed = false;
+let failure = "";
+
+fn fail(message: str) {
+    if !failed {
+        failed = true;
+        failure = message;
+    }
+}
+
+fn peek() -> str {
+    if position >= len(source) {
+        return "";
+    }
+    return source[position];
+}
+
+fn skip_spaces() {
+    while position < len(source) && peek() == " " {
+        position += 1;
+    }
+}
+
+fn at(character: str) -> bool {
+    skip_spaces();
+    return peek() == character;
+}
+
+fn eat(character: str) -> bool {
+    if at(character) {
+        position += 1;
+        return true;
+    }
+    return false;
+}
+
+fn is_digit(character: str) -> bool {
+    if len(character) == 0 {
+        return false;
+    }
+    const code = ord(character);
+    return code >= ord("0") && code <= ord("9");
+}
+
+fn is_letter(character: str) -> bool {
+    if len(character) == 0 {
+        return false;
+    }
+    const code = ord(lower(character));
+    return code >= ord("a") && code <= ord("z");
+}
+
+fn parse_number() -> float {
+    let text = "";
+    while is_digit(peek()) {
+        text += peek();
+        position += 1;
+    }
+    if peek() == "." {
+        text += ".";
+        position += 1;
+        while is_digit(peek()) {
+            text += peek();
+            position += 1;
+        }
+    }
+    if len(text) == 0 {
+        fail("expected a number at offset " + str(position));
+        return 0.0;
+    }
+    return float(text);
+}
+
+fn parse_name() -> str {
+    let text = "";
+    while is_letter(peek()) {
+        text += peek();
+        position += 1;
+    }
+    return text;
+}
+
+// Fire has no forward declarations because functions are visible everywhere in
+// the file, so this mutual recursion needs no ceremony.
+fn parse_primary() -> float {
+    skip_spaces();
+    if eat("(") {
+        const value = parse_expression();
+        if !eat(")") {
+            fail("expected `)` at offset " + str(position));
+        }
+        return value;
+    }
+    if is_letter(peek()) {
+        const name = parse_name();
+        if !eat("(") {
+            fail("expected `(` after `" + name + "`");
+            return 0.0;
+        }
+        const argument = parse_expression();
+        if !eat(")") {
+            fail("expected `)` after the argument to `" + name + "`");
+        }
+        if name == "sqrt" {
+            if argument < 0.0 {
+                fail("sqrt of a negative number");
+                return 0.0;
+            }
+            return sqrt(argument);
+        }
+        if name == "abs" {
+            return abs(argument);
+        }
+        fail("unknown function `" + name + "`");
+        return 0.0;
+    }
+    return parse_number();
+}
+
+fn parse_factor() -> float {
+    skip_spaces();
+    if eat("-") {
+        return -parse_factor();
+    }
+    return parse_primary();
+}
+
+fn parse_term() -> float {
+    let value = parse_factor();
+    while !failed {
+        if eat("*") {
+            value *= parse_factor();
+        } elif eat("/") {
+            const divisor = parse_factor();
+            if divisor == 0.0 {
+                fail("division by zero");
+                return 0.0;
+            }
+            value /= divisor;
+        } else {
+            break;
+        }
+    }
+    return value;
+}
+
+fn parse_expression() -> float {
+    let value = parse_term();
+    while !failed {
+        if eat("+") {
+            value += parse_term();
+        } elif eat("-") {
+            value -= parse_term();
+        } else {
+            break;
+        }
+    }
+    return value;
+}
+
+fn evaluate(text: str) -> float {
+    source = text;
+    position = 0;
+    failed = false;
+    failure = "";
+
+    const value = parse_expression();
+    skip_spaces();
+    if !failed && position < len(source) {
+        fail("unexpected `" + source[position] + "` at offset " + str(position));
+    }
+    return value;
+}
+
+fn report(text: str) {
+    const value = evaluate(text);
+    if failed {
+        println("  " + text + "  ->  error: " + failure);
+    } else {
+        println("  " + text + "  ->  " + str(value));
+    }
+}
+
+println("Fire expression calculator");
+println("");
+
+const cases: [str] = [
+    "1 + 2 * 3",
+    "(1 + 2) * 3",
+    "-4 + 10",
+    "2 * (3 + 4) - 5 / 2",
+    "sqrt(16) + abs(-3)",
+    "10 / 4",
+    "1 / 0",
+    "2 +",
+    "sqrt(-1)",
+    "3 @ 4",
+];
+
+for expression in cases {
+    report(expression);
+}

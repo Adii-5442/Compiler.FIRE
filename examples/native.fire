@@ -1,0 +1,77 @@
+// Everything in this file lies inside the subset the native backend supports,
+// so it can be compiled to a standalone Linux executable:
+//
+//     fire build examples/native.fire -o collatz && ./collatz
+//     fire emit --asm examples/native.fire | less
+//
+// The subset is `int`, `bool`, string literals passed to print/println, every
+// operator, all control flow, and functions including recursion. Anything else
+// — floats, arrays, computed strings — is reported by name and belongs on the
+// VM: `fire run`.
+
+fn collatz_length(start: int) -> int {
+    let n = start;
+    let steps = 0;
+    while n != 1 {
+        if n % 2 == 0 {
+            n = n / 2;
+        } else {
+            n = 3 * n + 1;
+        }
+        steps += 1;
+    }
+    return steps;
+}
+
+fn is_prime(n: int) -> bool {
+    if n < 2 {
+        return false;
+    }
+    if n % 2 == 0 {
+        return n == 2;
+    }
+    let d = 3;
+    while d * d <= n {
+        if n % d == 0 {
+            return false;
+        }
+        d += 2;
+    }
+    return true;
+}
+
+fn ackermann(m: int, n: int) -> int {
+    if m == 0 {
+        return n + 1;
+    }
+    if n == 0 {
+        return ackermann(m - 1, 1);
+    }
+    return ackermann(m - 1, ackermann(m, n - 1));
+}
+
+println("longest Collatz chain under 10000");
+let best_start = 1;
+let best_length = 0;
+for candidate in 1..10000 {
+    const length = collatz_length(candidate);
+    if length > best_length {
+        best_length = length;
+        best_start = candidate;
+    }
+}
+println("  start:", best_start, " steps:", best_length);
+
+println("primes between 1000 and 1100");
+for n in 1000..1100 {
+    if is_prime(n) {
+        print(n, "");
+    }
+}
+println("");
+
+println("ackermann(2, 3) =", ackermann(2, 3));
+println("ackermann(3, 3) =", ackermann(3, 3));
+
+const shifted = (1 << 40) | 0xFF;
+println("bit twiddling:", shifted, shifted >> 8, ~0, -17 / 4, -17 % 4);

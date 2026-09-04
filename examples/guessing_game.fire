@@ -1,0 +1,65 @@
+// A number guessing game — the smallest interesting interactive program.
+//
+//     fire run examples/guessing_game.fire
+//
+// `seed` makes the sequence reproducible, so the same run always picks the
+// same secret. Pass a seed of your own on the command line to change it:
+//
+//     fire run examples/guessing_game.fire -- 12345
+
+let chosen_seed = 20240914;
+const supplied = args();
+if len(supplied) > 0 {
+    chosen_seed = int(supplied[0]);
+}
+seed(chosen_seed);
+
+const secret = rand_int(1, 100);
+const allowance = 7;
+
+println("I am thinking of a number between 1 and 100.");
+println("You have", allowance, "guesses. Ctrl-D to give up.");
+println("");
+
+let guess_number = 1;
+while guess_number <= allowance {
+    print("guess " + str(guess_number) + "/" + str(allowance) + "> ");
+    const line = trim(input());
+    if len(line) == 0 {
+        println("");
+        println("no more input — the number was", secret);
+        exit(0);
+    }
+
+    // `int()` fails loudly on nonsense, so screen the input first.
+    let numeric = len(line) > 0;
+    for character in line {
+        const code = ord(character);
+        if code < ord("0") || code > ord("9") {
+            numeric = false;
+        }
+    }
+    if !numeric {
+        println("  that is not a number between 1 and 100.");
+        continue;
+    }
+
+    const guess = int(line);
+    if guess == secret {
+        if guess_number == 1 {
+            println("  correct, first try.");
+        } else {
+            println("  correct, in", guess_number, "guesses.");
+        }
+        exit(0);
+    } elif guess < secret {
+        println("  too low.");
+    } else {
+        println("  too high.");
+    }
+    guess_number += 1;
+}
+
+println("");
+println("out of guesses — the number was", secret);
+exit(1);

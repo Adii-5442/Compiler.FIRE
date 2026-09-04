@@ -1,0 +1,51 @@
+// Three ways to compute Fibonacci numbers, and what each one costs.
+
+// Naive recursion. Exponential: fib(30) makes 2.7 million calls.
+fn fib_recursive(n: int) -> int {
+    if n < 2 {
+        return n;
+    }
+    return fib_recursive(n - 1) + fib_recursive(n - 2);
+}
+
+// Bottom-up iteration. Linear, and the version you would actually ship.
+fn fib_iterative(n: int) -> int {
+    let previous = 0;
+    let current = 1;
+    if n == 0 {
+        return 0;
+    }
+    for _i in 1..n {
+        let next = previous + current;
+        previous = current;
+        current = next;
+    }
+    return current;
+}
+
+// Memoised: the array is passed by reference, so the callee's writes are
+// visible to the caller. That is how Fire arrays work.
+fn fib_memo(n: int, cache: [int]) -> int {
+    if n < 2 {
+        return n;
+    }
+    if cache[n] != 0 {
+        return cache[n];
+    }
+    let result = fib_memo(n - 1, cache) + fib_memo(n - 2, cache);
+    cache[n] = result;
+    return result;
+}
+
+println("n   recursive  iterative  memoised");
+for n in 0..16 {
+    let cache: [int] = [];
+    for _slot in 0..(n + 1) {
+        push(cache, 0);
+    }
+    println(n, "  ", fib_recursive(n), "     ", fib_iterative(n), "     ",
+            fib_memo(n, cache));
+}
+
+println("");
+println("fib(80) by iteration =", fib_iterative(80));

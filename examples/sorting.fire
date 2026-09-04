@@ -1,0 +1,159 @@
+// Four sorting algorithms over the same data, plus a binary search.
+//
+// Arrays have reference semantics: `sort(xs)` mutates the caller's array. The
+// helpers here copy first when they need to leave the input alone.
+
+fn copy_of(xs: [int]) -> [int] {
+    let out: [int] = [];
+    for x in xs {
+        push(out, x);
+    }
+    return out;
+}
+
+fn swap(xs: [int], i: int, j: int) {
+    let temporary = xs[i];
+    xs[i] = xs[j];
+    xs[j] = temporary;
+}
+
+fn bubble_sort(xs: [int]) {
+    let n = len(xs);
+    let swapped = true;
+    while swapped {
+        swapped = false;
+        for i in 1..n {
+            if xs[i - 1] > xs[i] {
+                swap(xs, i - 1, i);
+                swapped = true;
+            }
+        }
+        n -= 1;
+    }
+}
+
+fn insertion_sort(xs: [int]) {
+    for i in 1..len(xs) {
+        let value = xs[i];
+        let j = i - 1;
+        while j >= 0 && xs[j] > value {
+            xs[j + 1] = xs[j];
+            j -= 1;
+        }
+        xs[j + 1] = value;
+    }
+}
+
+fn partition(xs: [int], low: int, high: int) -> int {
+    const pivot = xs[high];
+    let boundary = low - 1;
+    for i in low..high {
+        if xs[i] <= pivot {
+            boundary += 1;
+            swap(xs, boundary, i);
+        }
+    }
+    swap(xs, boundary + 1, high);
+    return boundary + 1;
+}
+
+fn quick_sort_range(xs: [int], low: int, high: int) {
+    if low >= high {
+        return;
+    }
+    const split = partition(xs, low, high);
+    quick_sort_range(xs, low, split - 1);
+    quick_sort_range(xs, split + 1, high);
+}
+
+fn quick_sort(xs: [int]) {
+    quick_sort_range(xs, 0, len(xs) - 1);
+}
+
+fn merge_sort(xs: [int]) -> [int] {
+    if len(xs) <= 1 {
+        return copy_of(xs);
+    }
+    const middle = len(xs) / 2;
+    let left = merge_sort(slice(xs, 0, middle));
+    let right = merge_sort(slice(xs, middle, len(xs)));
+
+    let out: [int] = [];
+    let i = 0;
+    let j = 0;
+    while i < len(left) && j < len(right) {
+        if left[i] <= right[j] {
+            push(out, left[i]);
+            i += 1;
+        } else {
+            push(out, right[j]);
+            j += 1;
+        }
+    }
+    while i < len(left) {
+        push(out, left[i]);
+        i += 1;
+    }
+    while j < len(right) {
+        push(out, right[j]);
+        j += 1;
+    }
+    return out;
+}
+
+/// Index of `target` in a sorted array, or -1.
+fn binary_search(xs: [int], target: int) -> int {
+    let low = 0;
+    let high = len(xs) - 1;
+    while low <= high {
+        const middle = low + (high - low) / 2;
+        if xs[middle] == target {
+            return middle;
+        }
+        if xs[middle] < target {
+            low = middle + 1;
+        } else {
+            high = middle - 1;
+        }
+    }
+    return -1;
+}
+
+fn is_sorted(xs: [int]) -> bool {
+    for i in 1..len(xs) {
+        if xs[i - 1] > xs[i] {
+            return false;
+        }
+    }
+    return true;
+}
+
+seed(20240914);
+let data: [int] = [];
+for _i in 0..20 {
+    push(data, rand_int(0, 99));
+}
+println("input:   ", data);
+
+let bubbled = copy_of(data);
+bubble_sort(bubbled);
+println("bubble:  ", bubbled);
+
+let inserted = copy_of(data);
+insertion_sort(inserted);
+println("insert:  ", inserted);
+
+let quicked = copy_of(data);
+quick_sort(quicked);
+println("quick:   ", quicked);
+
+let merged = merge_sort(data);
+println("merge:   ", merged);
+
+assert(is_sorted(bubbled) && is_sorted(inserted), "a sort produced unsorted output");
+assert(bubbled == inserted && inserted == quicked && quicked == merged,
+       "the four sorts disagree");
+
+println("");
+println("binary_search(merged, " + str(merged[7]) + ") ->", binary_search(merged, merged[7]));
+println("binary_search(merged, 1000)  ->", binary_search(merged, 1000));

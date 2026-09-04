@@ -1,0 +1,138 @@
+// A tour of the whole language in one file. Everything Fire can do appears
+// here; docs/language-reference.md says the same things in prose.
+
+// ---------------------------------------------------------------------------
+// Values and types
+// ---------------------------------------------------------------------------
+
+let an_int = 42;                    // int   — signed 64-bit
+let a_float = 3.14159;              // float — IEEE-754 double
+let a_bool = true;                  // bool
+let a_string = "fire";              // str   — immutable UTF-8
+let an_array: [int] = [1, 2, 3];    // [T]   — growable, reference semantics
+
+// Types are inferred, but you may always write them down.
+const explicit: float = 2.5;
+
+// Integer literals come in four bases and may use `_` as a separator.
+println(1_000_000, 0xDEAD_BEEF, 0b1010_1010, 0o755);
+
+// ---------------------------------------------------------------------------
+// Operators
+// ---------------------------------------------------------------------------
+
+println("arithmetic:", 7 + 2, 7 - 2, 7 * 2, 7 / 2, 7 % 2, -7);
+println("float:     ", 7.0 / 2.0, 2.0 * explicit);
+println("comparison:", 1 < 2, 2 <= 2, 3 > 4, "abc" < "abd", an_array == [1, 2, 3]);
+println("logic:     ", a_bool && false, a_bool || false, !a_bool);
+println("bitwise:   ", 6 & 3, 6 | 3, 6 ^ 3, 1 << 8, -16 >> 2, ~5);
+println("strings:   ", "con" + "cat", a_string[0], len(a_string));
+
+// There is no implicit conversion and no truthiness. Both of these are
+// compile errors, on purpose:
+//     let bad = 1 + 2.0;
+//     if an_int { }
+println("conversions:", float(an_int), int(a_float), str(an_int), int("123"), bool(0));
+
+// ---------------------------------------------------------------------------
+// Control flow
+// ---------------------------------------------------------------------------
+
+if an_int > 100 {
+    println("large");
+} elif an_int > 10 {
+    println("medium");
+} else {
+    println("small");
+}
+
+let countdown = 3;
+while countdown > 0 {
+    print(countdown, "");
+    countdown -= 1;
+}
+println("liftoff");
+
+for i in 0..5 {                     // a range, upper bound excluded
+    if i == 1 {
+        continue;
+    }
+    if i == 4 {
+        break;
+    }
+    print(i, "");
+}
+println("");
+
+for character in "fire" {           // over a string, one character at a time
+    print(character, "");
+}
+println("");
+
+for element in an_array {           // over an array
+    print(element * 10, "");
+}
+println("");
+
+// ---------------------------------------------------------------------------
+// Functions
+// ---------------------------------------------------------------------------
+
+// Parameters are annotated; the return type follows `->` and defaults to void.
+fn area(width: float, height: float) -> float {
+    return width * height;
+}
+
+fn greet(who: str) {
+    println("hello,", who);
+}
+
+// Functions are visible before their declaration, so mutual recursion needs no
+// forward declarations.
+fn is_even(n: int) -> bool {
+    if n == 0 {
+        return true;
+    }
+    return is_odd(n - 1);
+}
+
+fn is_odd(n: int) -> bool {
+    if n == 0 {
+        return false;
+    }
+    return is_even(n - 1);
+}
+
+println("area:", area(3.0, 4.0));
+greet("Fire");
+println("is_even(10):", is_even(10), " is_odd(10):", is_odd(10));
+
+// ---------------------------------------------------------------------------
+// Arrays are references
+// ---------------------------------------------------------------------------
+
+fn append_twice(target: [int], value: int) {
+    push(target, value);
+    push(target, value);
+}
+
+let shared = [1];
+append_twice(shared, 7);
+println("mutated by the callee:", shared);
+
+let aliased = shared;               // the same array, not a copy
+push(aliased, 99);
+println("aliased:", shared, aliased, shared == aliased);
+
+// ---------------------------------------------------------------------------
+// The standard library
+// ---------------------------------------------------------------------------
+
+println("array:  ", len(an_array), pop(an_array), an_array, slice([1,2,3,4,5], 1, 4));
+println("strings:", upper("shout"), trim("  x  "), split("a,b", ","), join(["a","b"], "-"));
+println("maths:  ", abs(-3), min(2, 9), max(2, 9), pow(2.0, 10.0), sqrt(2.0), floor(2.7));
+println("chars:  ", chr(9731), ord("A"), find("haystack", "stack"));
+
+assert(1 + 1 == 2, "arithmetic still works");
+println("");
+println("tour complete — see `fire builtins` for the full library.");

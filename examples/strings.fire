@@ -1,0 +1,66 @@
+// The string builtins, and a few classics built on top of them.
+
+fn reverse(text: str) -> str {
+    let out = "";
+    let i = len(text) - 1;
+    while i >= 0 {
+        out += text[i];
+        i -= 1;
+    }
+    return out;
+}
+
+fn is_palindrome(text: str) -> bool {
+    let cleaned = "";
+    for character in lower(text) {
+        const code = ord(character);
+        if (code >= ord("a") && code <= ord("z")) || (code >= ord("0") && code <= ord("9")) {
+            cleaned += character;
+        }
+    }
+    return cleaned == reverse(cleaned);
+}
+
+fn title_case(text: str) -> str {
+    let words = split(text, " ");
+    let out: [str] = [];
+    for word in words {
+        if len(word) == 0 {
+            continue;
+        }
+        push(out, upper(word[0]) + lower(slice(word, 1, len(word))));
+    }
+    return join(out, " ");
+}
+
+fn count_occurrences(haystack: str, needle: str) -> int {
+    if len(needle) == 0 {
+        return 0;
+    }
+    let total = 0;
+    let rest = haystack;
+    while true {
+        const at = find(rest, needle);
+        if at < 0 {
+            break;
+        }
+        total += 1;
+        rest = slice(rest, at + len(needle), len(rest));
+    }
+    return total;
+}
+
+const sentence = "  A man, a plan, a canal: Panama  ";
+
+println("original:   [" + sentence + "]");
+println("trimmed:    [" + trim(sentence) + "]");
+println("upper:      " + upper(trim(sentence)));
+println("reversed:   " + reverse(trim(sentence)));
+println("title case: " + title_case("the quick BROWN fox"));
+println("palindrome: ", is_palindrome(sentence));
+println("'a' appears", count_occurrences(lower(sentence), "a"), "times");
+println("replace:    " + replace("one two three", " ", "-"));
+println("split/join: " + join(split("2024-09-14", "-"), "/"));
+println("repeat:     " + repeat("=-", 12));
+println("chr/ord:    ", chr(70) + chr(105) + chr(114) + chr(101), ord("F"));
+println("unicode:    " + chr(128293) + " code point " + str(ord(chr(128293))));

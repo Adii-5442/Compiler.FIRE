@@ -1,0 +1,14 @@
+// The smallest complete Fire program: top-level statements run in order,
+// there is no required `main`.
+println("Hello, Fire!");
+
+// `let` infers the type; `const` binds it for good.
+let name = "world";
+const answer = 42;
+
+println("hello, " + name + "! the answer is " + str(answer));
+
+// Everything is statically typed, so this would not compile:
+//     let wrong: int = "42";
+// The compiler would say what it expected and suggest `int("42")`.
+println("2 + 2 =", 2 + 2, "and 7 / 2 =", 7 / 2, "but 7.0 / 2.0 =", 7.0 / 2.0);

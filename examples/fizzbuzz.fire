@@ -1,0 +1,15 @@
+// FizzBuzz, the traditional first look at a language's control flow.
+fn classify(n: int) -> str {
+    if n % 15 == 0 {
+        return "FizzBuzz";
+    } elif n % 3 == 0 {
+        return "Fizz";
+    } elif n % 5 == 0 {
+        return "Buzz";
+    }
+    return str(n);
+}
+
+for n in 1..21 {
+    println(classify(n));
+}

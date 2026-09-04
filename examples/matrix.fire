@@ -1,0 +1,82 @@
+// Nested arrays: `[[int]]` is an array of arrays, and inner arrays are
+// independent objects rather than rows of one flat block.
+
+fn zeros(rows: int, columns: int) -> [[int]] {
+    let out: [[int]] = [];
+    for _r in 0..rows {
+        let row: [int] = [];
+        for _c in 0..columns {
+            push(row, 0);
+        }
+        push(out, row);
+    }
+    return out;
+}
+
+fn identity(n: int) -> [[int]] {
+    let out = zeros(n, n);
+    for i in 0..n {
+        out[i][i] = 1;
+    }
+    return out;
+}
+
+fn multiply(a: [[int]], b: [[int]]) -> [[int]] {
+    const rows = len(a);
+    const inner = len(b);
+    const columns = len(b[0]);
+    let out = zeros(rows, columns);
+    for i in 0..rows {
+        for j in 0..columns {
+            let total = 0;
+            for k in 0..inner {
+                total += a[i][k] * b[k][j];
+            }
+            out[i][j] = total;
+        }
+    }
+    return out;
+}
+
+fn transpose(m: [[int]]) -> [[int]] {
+    let out = zeros(len(m[0]), len(m));
+    for i in 0..len(m) {
+        for j in 0..len(m[0]) {
+            out[j][i] = m[i][j];
+        }
+    }
+    return out;
+}
+
+fn show(name: str, m: [[int]]) {
+    println(name + ":");
+    for row in m {
+        let cells: [str] = [];
+        for value in row {
+            let text = str(value);
+            while len(text) < 4 {
+                text = " " + text;
+            }
+            push(cells, text);
+        }
+        println("  [" + join(cells, "") + " ]");
+    }
+}
+
+const a: [[int]] = [
+    [1, 2, 3],
+    [4, 5, 6],
+];
+const b: [[int]] = [
+    [7, 8],
+    [9, 10],
+    [11, 12],
+];
+
+show("A (2x3)", a);
+show("B (3x2)", b);
+show("A * B", multiply(a, b));
+show("transpose(A)", transpose(a));
+show("A * I", multiply(a, identity(3)));
+
+assert(multiply(a, identity(3)) == a, "multiplying by the identity changed the matrix");
