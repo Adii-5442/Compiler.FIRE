@@ -20,6 +20,13 @@ VM::VM(const Module& module, Options options)
     m_frames.reserve(64);
 }
 
+void VM::adopt_globals(std::vector<Value> globals)
+{
+    m_globals = std::move(globals);
+    // A fragment may have declared new globals since the last run.
+    m_globals.resize(m_module.global_count, Value::integer(0));
+}
+
 std::ostream& VM::out() { return m_options.out != nullptr ? *m_options.out : std::cout; }
 std::ostream& VM::err() { return m_options.err != nullptr ? *m_options.err : std::cerr; }
 std::istream& VM::in() { return m_options.in != nullptr ? *m_options.in : std::cin; }

@@ -67,6 +67,11 @@ public:
     /// Deterministic xorshift state behind `seed` and `rand_int`.
     std::uint64_t& rng_state() { return m_rng; }
 
+    /// Global storage, exposed so the REPL can carry it from one fragment to
+    /// the next.
+    [[nodiscard]] const std::vector<Value>& globals() const { return m_globals; }
+    void adopt_globals(std::vector<Value> globals);
+
     [[noreturn]] static void fail(std::string message, std::string help = {});
 
 private:

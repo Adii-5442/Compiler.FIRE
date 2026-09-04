@@ -95,7 +95,7 @@ void Analyzer::pop_scope()
     const Scope& scope = m_scopes.back();
     for (const Variable& variable : scope.variables) {
         if (!variable.used && !variable.is_parameter && variable.name.rfind('_', 0) != 0) {
-            m_diagnostics
+            diags()
                 .warning("W0001", "unused variable `" + variable.name + "`", variable.span)
                 .label("never read after this declaration")
                 .help("prefix the name with `_` to silence this warning");
@@ -115,7 +115,7 @@ Analyzer::Variable* Analyzer::declare(
     Scope& scope = m_scopes.back();
     for (const Variable& existing : scope.variables) {
         if (existing.name == name) {
-            m_diagnostics.error("E0202", "`" + name + "` is already declared in this scope", span)
+            diags().error("E0202", "`" + name + "` is already declared in this scope", span)
                 .label("redeclared here")
                 .secondary(existing.span, "first declared here")
                 .help("shadowing is allowed in a nested block, but not twice in one scope");
@@ -213,7 +213,7 @@ bool Analyzer::analyze(Program& program)
 
 bool Analyzer::analyze_fragment(Program& program)
 {
-    const std::size_t errors_before = m_diagnostics.error_count();
+    const std::size_t errors_before = diags().error_count();
 
     if (m_scopes.empty()) {
         push_scope(); // the global scope, kept alive between REPL fragments
@@ -223,7 +223,7 @@ bool Analyzer::analyze_fragment(Program& program)
     // before analysing any body.
     for (std::unique_ptr<FunctionDecl>& function : program.functions) {
         if (const auto native = find_native(function->name); native.has_value()) {
-            m_diagnostics
+            diags()
                 .error("E0204", "`" + function->name + "` is a builtin and cannot be redefined",
                     function->name_span)
                 .label("this name is already taken")
@@ -233,7 +233,7 @@ bool Analyzer::analyze_fragment(Program& program)
         }
         const auto [it, inserted] = m_function_table.emplace(function->name, function.get());
         if (!inserted) {
-            m_diagnostics
+            diags()
                 .error("E0205", "function `" + function->name + "` is defined more than once",
                     function->name_span)
                 .label("redefined here")
@@ -260,7 +260,7 @@ bool Analyzer::analyze_fragment(Program& program)
     }
 
     program.global_count = m_global_count;
-    return m_diagnostics.error_count() == errors_before;
+    return diags().error_count() == errors_before;
 }
 
 void Analyzer::analyze_function(FunctionDecl& function)
@@ -282,7 +282,7 @@ void Analyzer::analyze_function(FunctionDecl& function)
     m_functions.pop_back();
 
     if (!function.return_type->is_void() && !always_diverges(function.body.get())) {
-        m_diagnostics
+        diags()
             .error("E0206",
                 "not every path through `" + function.name + "` returns a value",
                 function.name_span)
@@ -326,7 +326,7 @@ void Analyzer::analyze_statement(Stmt& statement)
     case StmtKind::Continue:
         if (m_functions.back().loop_depth == 0) {
             const char* keyword = statement.kind == StmtKind::Break ? "break" : "continue";
-            m_diagnostics
+            diags()
                 .error("E0207", std::string { "`" } + keyword + "` outside of a loop",
                     statement.span)
                 .label("there is no enclosing `while` or `for`");
@@ -347,7 +347,7 @@ void Analyzer::analyze_var_decl(VarDeclStmt& statement)
         expect_type(statement.annotation, initial, statement.init->span,
             "initialiser for `" + statement.name + "`");
     } else if (initial->is_void()) {
-        m_diagnostics
+        diags()
             .error("E0208", "cannot bind `" + statement.name + "` to a `void` value",
                 statement.init->span)
             .label("this call does not produce a value");
@@ -367,7 +367,7 @@ void Analyzer::analyze_assign(AssignStmt& statement)
     if (statement.target->kind == ExprKind::Name) {
         auto& name = static_cast<NameExpr&>(*statement.target);
         if (Variable* variable = lookup(name.name); variable != nullptr && variable->is_const) {
-            m_diagnostics
+            diags()
                 .error("E0209", "cannot assign to `" + name.name + "`, it is a `const`",
                     statement.span)
                 .label("assignment to a constant")
@@ -386,7 +386,7 @@ void Analyzer::analyze_assign(AssignStmt& statement)
                 || (op == BinaryOp::Add && target->is(TypeKind::Str)
                     && value->is(TypeKind::Str)));
         if (!ok && !target->is_error() && !value->is_error()) {
-            m_diagnostics
+            diags()
                 .error("E0210",
                     std::string { "cannot apply `" } + binary_op_spelling(op) + "=` to `"
                         + target->to_string() + "` and `" + value->to_string() + '`',
@@ -463,7 +463,7 @@ void Analyzer::analyze_for_in(ForInStmt& statement)
     } else if (sequence->is(TypeKind::Str)) {
         element = m_types.str_type();
     } else if (!sequence->is_error()) {
-        m_diagnostics
+        diags()
             .error("E0211", "cannot iterate over `" + sequence->to_string() + '`',
                 statement.iterable->span)
             .label("expected an array or a `str`")
@@ -487,7 +487,7 @@ void Analyzer::analyze_return(ReturnStmt& statement)
 {
     FunctionContext& context = m_functions.back();
     if (context.declaration == nullptr) {
-        m_diagnostics.error("E0212", "`return` outside of a function", statement.span)
+        diags().error("E0212", "`return` outside of a function", statement.span)
             .label("top-level code cannot return")
             .help("use `exit(code)` to stop the program");
         if (statement.value) {
@@ -498,7 +498,7 @@ void Analyzer::analyze_return(ReturnStmt& statement)
 
     if (!statement.value) {
         if (!context.return_type->is_void()) {
-            m_diagnostics
+            diags()
                 .error("E0213", "`return` without a value in a function that returns `"
                         + context.return_type->to_string() + '`',
                     statement.span)
@@ -509,7 +509,7 @@ void Analyzer::analyze_return(ReturnStmt& statement)
 
     const Type* value = analyze_expression(*statement.value, context.return_type);
     if (context.return_type->is_void()) {
-        m_diagnostics
+        diags()
             .error("E0214", "returning a value from a function declared `void`",
                 statement.value->span)
             .label("this function has no return type")
@@ -571,7 +571,7 @@ const Type* Analyzer::analyze_array_literal(ArrayLiteralExpr& expr, const Type* 
                                                                            : nullptr;
     if (expr.elements.empty()) {
         if (hint == nullptr) {
-            m_diagnostics.error("E0215", "cannot infer the element type of an empty array", expr.span)
+            diags().error("E0215", "cannot infer the element type of an empty array", expr.span)
                 .label("no elements to infer from")
                 .help("write the type: `let xs: [int] = [];`");
             return m_types.error_type();
@@ -583,7 +583,7 @@ const Type* Analyzer::analyze_array_literal(ArrayLiteralExpr& expr, const Type* 
     for (std::size_t i = 1; i < expr.elements.size(); ++i) {
         const Type* other = analyze_expression(*expr.elements[i], element);
         if (!other->is_error() && !element->is_error() && other != element) {
-            m_diagnostics
+            diags()
                 .error("E0216", "array elements must all have the same type",
                     expr.elements[i]->span)
                 .label("this element is `" + other->to_string() + '`')
@@ -602,7 +602,7 @@ const Type* Analyzer::analyze_name(NameExpr& expr)
 {
     Variable* variable = lookup(expr.name);
     if (variable == nullptr) {
-        auto builder = m_diagnostics.error("E0217", "cannot find `" + expr.name + "` in this scope",
+        auto builder = diags().error("E0217", "cannot find `" + expr.name + "` in this scope",
             expr.span);
         builder.label("not found");
         if (m_function_table.count(expr.name) != 0 || find_native(expr.name).has_value()) {
@@ -642,7 +642,7 @@ const Type* Analyzer::analyze_unary(UnaryExpr& expr)
         }
         return operand;
     }
-    m_diagnostics
+    diags()
         .error("E0218",
             std::string { "cannot apply `" } + unary_op_spelling(expr.op) + "` to `"
                 + operand->to_string() + '`',
@@ -660,7 +660,7 @@ const Type* Analyzer::analyze_binary(BinaryExpr& expr)
     }
 
     const auto reject = [&](const char* why) {
-        auto builder = m_diagnostics.error("E0201",
+        auto builder = diags().error("E0201",
             std::string { "cannot apply `" } + binary_op_spelling(expr.op) + "` to `"
                 + left->to_string() + "` and `" + right->to_string() + '`',
             expr.span);
@@ -743,11 +743,12 @@ const Type* Analyzer::analyze_call(CallExpr& expr)
         expr.target = CallTarget::UserFunction;
         expr.index = function->index;
         if (argument_types.size() != function->params.size()) {
-            m_diagnostics
+            diags()
                 .error("E0219",
                     "`" + expr.callee + "` takes " + std::to_string(function->params.size())
                         + (function->params.size() == 1 ? " argument" : " arguments") + ", but "
-                        + std::to_string(argument_types.size()) + " were supplied",
+                        + std::to_string(argument_types.size())
+                        + (argument_types.size() == 1 ? " was" : " were") + " supplied",
                     expr.span)
                 .label("wrong number of arguments")
                 .secondary(function->name_span, "defined here");
@@ -773,22 +774,22 @@ const Type* Analyzer::analyze_call(CallExpr& expr)
             } else if (info.max_arity != info.min_arity) {
                 expected += " to " + std::to_string(info.max_arity);
             }
-            m_diagnostics
+            diags()
                 .error("E0220",
                     "`" + expr.callee + "` takes " + expected + " arguments, but "
-                        + std::to_string(count) + " were supplied",
+                        + std::to_string(count) + (count == 1 ? " was" : " were") + " supplied",
                     expr.span)
                 .label("wrong number of arguments")
                 .note(std::string { info.name } + ": " + std::string { info.summary });
             return m_types.error_type();
         }
-        const NativeCallCheck check { m_types, m_diagnostics, argument_types, argument_spans,
+        const NativeCallCheck check { m_types, diags(), argument_types, argument_spans,
             expr.span, info.name };
         return info.check(check);
     }
 
     auto builder
-        = m_diagnostics.error("E0221", "cannot find function `" + expr.callee + '`', expr.callee_span);
+        = diags().error("E0221", "cannot find function `" + expr.callee + '`', expr.callee_span);
     builder.label("not found in this scope");
     if (lookup(expr.callee) != nullptr) {
         builder.help("`" + expr.callee + "` is a variable, not a function");
@@ -815,7 +816,7 @@ const Type* Analyzer::analyze_index(IndexExpr& expr)
         // `ord(s[i])` is the way to get a number.
         return m_types.str_type();
     }
-    m_diagnostics.error("E0222", "cannot index into `" + target->to_string() + '`', expr.span)
+    diags().error("E0222", "cannot index into `" + target->to_string() + '`', expr.span)
         .label("expected an array or a `str`");
     return m_types.error_type();
 }
@@ -829,7 +830,7 @@ void Analyzer::require_bool(Expr& expr, const char* construct)
     if (expr.type == nullptr || expr.type->is_error() || expr.type->is(TypeKind::Bool)) {
         return;
     }
-    auto builder = m_diagnostics.error("E0223",
+    auto builder = diags().error("E0223",
         std::string { "`" } + construct + "` needs a `bool`, found `" + expr.type->to_string() + '`',
         expr.span);
     builder.label("expected `bool`");
@@ -847,7 +848,7 @@ void Analyzer::expect_type(
         || expected == actual) {
         return;
     }
-    auto builder = m_diagnostics.error("E0203",
+    auto builder = diags().error("E0203",
         "mismatched types: " + what + " has type `" + actual->to_string() + "` but `"
             + expected->to_string() + "` was expected",
         span);
@@ -894,7 +895,7 @@ void Analyzer::warn_unreachable(const std::vector<StmtPtr>& statements)
 {
     for (std::size_t i = 0; i + 1 < statements.size(); ++i) {
         if (statements[i] && always_diverges(statements[i].get()) && statements[i + 1]) {
-            m_diagnostics
+            diags()
                 .warning("W0002", "unreachable code", statements[i + 1]->span)
                 .label("this statement can never run")
                 .secondary(statements[i]->span, "control leaves the function here");

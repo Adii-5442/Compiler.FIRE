@@ -27,10 +27,15 @@ namespace fire {
 class Analyzer {
 public:
     Analyzer(DiagnosticEngine& diagnostics, TypeContext& types)
-        : m_diagnostics(diagnostics)
+        : m_diagnostics(&diagnostics)
         , m_types(types)
     {
     }
+
+    /// Point the analyzer at a different diagnostic engine. The REPL keeps one
+    /// analyzer alive across fragments but each fragment has its own source
+    /// file, and therefore its own engine.
+    void set_diagnostics(DiagnosticEngine& diagnostics) { m_diagnostics = &diagnostics; }
 
     /// Analyse a whole program in place. Returns false if any error was
     /// reported; the tree is still fully formed either way.
@@ -117,7 +122,10 @@ private:
     [[nodiscard]] static bool always_diverges(const Stmt* statement);
     void warn_unreachable(const std::vector<StmtPtr>& statements);
 
-    DiagnosticEngine& m_diagnostics;
+    /// The engine in use for the fragment being analysed.
+    [[nodiscard]] DiagnosticEngine& diags() const { return *m_diagnostics; }
+
+    DiagnosticEngine* m_diagnostics;
     TypeContext& m_types;
 
     std::vector<Scope> m_scopes;
