@@ -2,6 +2,7 @@
 #include "fire/value.hpp"
 
 #include <cmath>
+#include <cstring>
 #include <cstdio>
 #include <cstdlib>
 #include <sstream>
@@ -33,19 +34,39 @@ std::string format_float(double value)
     if (std::isinf(value)) {
         return value > 0 ? "inf" : "-inf";
     }
+    if (value == 0.0) {
+        return std::signbit(value) ? "-0.0" : "0.0";
+    }
 
-    // %.17g always round-trips but is ugly; try increasing precision until the
-    // text parses back to the same double, which yields the shortest exact
-    // rendering.
-    char buffer[40];
-    for (int precision = 1; precision <= 17; ++precision) {
-        std::snprintf(buffer, sizeof buffer, "%.*g", precision, value);
+    // Shortest round-tripping form: the fewest significant digits that parse
+    // back to exactly this double.
+    char buffer[48];
+    int precision = 17;
+    for (int candidate = 1; candidate <= 17; ++candidate) {
+        std::snprintf(buffer, sizeof buffer, "%.*g", candidate, value);
         if (std::strtod(buffer, nullptr) == value) {
+            precision = candidate;
             break;
         }
     }
-    std::string text { buffer };
 
+    // %g switches to scientific notation as soon as the exponent reaches the
+    // precision, so 100.0 at precision 1 comes out as "1e+02". Widen the
+    // precision to cover the integer part for magnitudes a reader would rather
+    // see written out; leave genuinely large and small numbers in exponent
+    // form.
+    char scientific[48];
+    std::snprintf(scientific, sizeof scientific, "%.*e", precision - 1, value);
+    int exponent = 0;
+    if (const char* marker = std::strchr(scientific, 'e'); marker != nullptr) {
+        exponent = std::atoi(marker + 1);
+    }
+    if (exponent >= 0 && exponent < 17 && exponent + 1 > precision) {
+        precision = exponent + 1;
+    }
+    std::snprintf(buffer, sizeof buffer, "%.*g", precision, value);
+
+    std::string text { buffer };
     // Make it obvious that this is a float and not an int.
     if (text.find_first_of(".eEn") == std::string::npos) {
         text += ".0";
