@@ -1,0 +1,122 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Fire",
+  "scopeName": "source.fire",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#keywords" },
+    { "include": "#types" },
+    { "include": "#builtins" },
+    { "include": "#functions" },
+    { "include": "#operators" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.fire",
+          "begin": "//",
+          "end": "$"
+        },
+        {
+          "name": "comment.block.fire",
+          "begin": "/\\*",
+          "end": "\\*/",
+          "patterns": [{ "include": "#comments" }]
+        }
+      ]
+    },
+    "strings": {
+      "name": "string.quoted.double.fire",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.fire",
+          "match": "\\\\(?:[nrte0\\\\\"]|x[0-9a-fA-F]{2}|u\\{[0-9a-fA-F]{1,6}\\})"
+        },
+        {
+          "name": "invalid.illegal.unknown-escape.fire",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.hex.fire",
+          "match": "\\b0[xX][0-9a-fA-F_]+\\b"
+        },
+        {
+          "name": "constant.numeric.binary.fire",
+          "match": "\\b0[bB][01_]+\\b"
+        },
+        {
+          "name": "constant.numeric.octal.fire",
+          "match": "\\b0[oO][0-7_]+\\b"
+        },
+        {
+          "name": "constant.numeric.float.fire",
+          "match": "\\b\\d[0-9_]*(\\.\\d[0-9_]*)?([eE][-+]?\\d+)\\b|\\b\\d[0-9_]*\\.\\d[0-9_]*\\b"
+        },
+        {
+          "name": "constant.numeric.integer.fire",
+          "match": "\\b\\d[0-9_]*\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.fire",
+          "match": "\\b(if|elif|else|while|for|in|break|continue|return)\\b"
+        },
+        {
+          "name": "keyword.declaration.fire",
+          "match": "\\b(let|const|fn)\\b"
+        },
+        {
+          "name": "constant.language.boolean.fire",
+          "match": "\\b(true|false)\\b"
+        }
+      ]
+    },
+    "types": {
+      "name": "support.type.primitive.fire",
+      "match": "\\b(int|float|bool|str|void)\\b"
+    },
+    "builtins": {
+      "name": "support.function.builtin.fire",
+      "match": "\\b(print|println|input|eof|len|push|pop|insert|remove|slice|find|split|join|trim|upper|lower|replace|repeat|chr|ord|abs|min|max|pow|sqrt|floor|ceil|round|seed|rand_int|exit|panic|assert|clock|args)\\b(?=\\s*\\()"
+    },
+    "functions": {
+      "patterns": [
+        {
+          "match": "\\b(fn)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.declaration.fire" },
+            "2": { "name": "entity.name.function.fire" }
+          }
+        },
+        {
+          "name": "entity.name.function.call.fire",
+          "match": "\\b[A-Za-z_][A-Za-z0-9_]*(?=\\s*\\()"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.fire",
+          "match": "(\\|\\||&&|==|!=|<=|>=|<<|>>|\\+=|-=|\\*=|/=|%=|->|\\.\\.|[-+*/%!~^&|<>=])"
+        },
+        {
+          "name": "punctuation.separator.fire",
+          "match": "[(){}\\[\\],;:]"
+        }
+      ]
+    }
+  }
+}

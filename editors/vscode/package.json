@@ -1,0 +1,27 @@
+{
+  "name": "fire-lang",
+  "displayName": "Fire",
+  "description": "Syntax highlighting for the Fire programming language (.fire)",
+  "version": "1.0.0",
+  "publisher": "fire-lang",
+  "license": "MIT",
+  "engines": { "vscode": "^1.75.0" },
+  "categories": ["Programming Languages"],
+  "contributes": {
+    "languages": [
+      {
+        "id": "fire",
+        "aliases": ["Fire", "fire"],
+        "extensions": [".fire"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "fire",
+        "scopeName": "source.fire",
+        "path": "./syntaxes/fire.tmLanguage.json"
+      }
+    ]
+  }
+}
