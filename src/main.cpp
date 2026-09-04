@@ -59,7 +59,7 @@ void print_usage(std::ostream& out)
            "  -h, --help       print this message\n\n"
            "EXAMPLES\n"
            "  fire run examples/fizzbuzz.fire\n"
-           "  fire build examples/mandelbrot.fire -o mandelbrot && ./mandelbrot\n"
+           "  fire build examples/native.fire -o collatz && ./collatz\n"
            "  fire emit --ast examples/hello.fire\n";
 }
 
@@ -216,9 +216,8 @@ int command_build(const Options& options)
     warn_extension(options.input);
 
     Compilation compilation { std::move(*source), options.color };
-    const bool ok = compilation.analyze();
-    compilation.report(std::cerr);
-    if (!ok) {
+    if (!compilation.analyze()) {
+        compilation.report(std::cerr);
         return kExitCompileError;
     }
 
