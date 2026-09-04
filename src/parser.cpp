@@ -546,8 +546,29 @@ ExprPtr Parser::parse_primary()
         break;
     }
 
-    // A type keyword in expression position is almost always a conversion the
-    // programmer expected to exist, so say so rather than "unexpected token".
+    // `int(x)`, `float(x)`, `bool(x)` and `str(x)` are the conversion
+    // builtins. Their names are also type keywords, so the lexer hands them
+    // over as keywords and the call form has to be recognised here.
+    if (is_type_keyword(token.type) && token.type != TokenType::KwVoid
+        && peek(1).is(TokenType::LParen)) {
+        advance();
+        advance();
+        auto call = std::make_unique<CallExpr>(token.span, token_type_name(token.type), token.span);
+        if (!check(TokenType::RParen)) {
+            do {
+                if (check(TokenType::RParen)) {
+                    break;
+                }
+                call->arguments.push_back(parse_expression());
+            } while (match(TokenType::Comma));
+        }
+        const Token& close = expect(TokenType::RParen, "to close a conversion");
+        call->span = token.span.merge(close.span);
+        return call;
+    }
+
+    // A type keyword anywhere else in expression position is almost always a
+    // conversion the programmer expected, so say so rather than "unexpected".
     if (is_type_keyword(token.type)) {
         fail("E0106",
             std::string { "`" } + token_type_name(token.type) + "` is a type, not a value",
