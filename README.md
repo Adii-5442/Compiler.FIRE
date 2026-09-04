@@ -17,7 +17,7 @@
 ---
 
 **Fire** is a small, statically typed programming language, and the compiler
-that runs it. Source files end in `.fire`. The compiler is about 6,000 lines of
+that runs it. Source files end in `.fire`. The compiler is about 8,800 lines of
 dependency-free C++20: a hand-written lexer, a recursive-descent parser, a type
 checker with inference, a bytecode compiler, a virtual machine, **and** a native
 x86-64 backend that produces a freestanding Linux executable.
