@@ -1,0 +1,6 @@
+// A tight arithmetic loop: dominated by dispatch and local access.
+let total = 0;
+for i in 0..8000000 {
+    total += i % 7;
+}
+println(total);

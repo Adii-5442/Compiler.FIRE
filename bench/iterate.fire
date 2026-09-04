@@ -1,0 +1,9 @@
+// `for x in xs` calls len() every iteration by design, so this measures the
+// cost of a builtin call in a hot loop.
+let xs: [int] = [];
+for i in 0..200000 { push(xs, i); }
+let sum = 0;
+for _pass in 0..12 {
+    for x in xs { sum += x; }
+}
+println(sum);

@@ -1,0 +1,8 @@
+// Array indexing and mutation.
+let xs: [int] = [];
+for i in 0..400000 { push(xs, i); }
+let sum = 0;
+for _pass in 0..8 {
+    for i in 0..len(xs) { sum += xs[i]; }
+}
+println(sum);
