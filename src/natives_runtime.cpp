@@ -13,9 +13,9 @@
 #include <algorithm>
 #include <cctype>
 #include <cerrno>
-#include <cstdint>
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <istream>
 #include <ostream>
@@ -134,8 +134,7 @@ namespace {
         }
     }
 
-    std::string replace_all(
-        const std::string& text, const std::string& from, const std::string& to)
+    std::string replace_all(const std::string& text, const std::string& from, const std::string& to)
     {
         if (from.empty()) {
             return text;
@@ -191,8 +190,7 @@ Value invoke_native(VM& vm, std::uint16_t id, std::vector<Value>& arguments)
         const std::int64_t index = arguments[1].as_int();
         if (index < 0 || static_cast<std::size_t>(index) > elements.size()) {
             VM::fail("insert index " + std::to_string(index)
-                    + " is out of bounds for an array of length "
-                    + std::to_string(elements.size()),
+                    + " is out of bounds for an array of length " + std::to_string(elements.size()),
                 "an index equal to the length appends");
         }
         elements.insert(elements.begin() + index, arguments[2]);
@@ -297,16 +295,17 @@ Value invoke_native(VM& vm, std::uint16_t id, std::vector<Value>& arguments)
         return Value::integer(std::max(arguments[0].as_int(), arguments[1].as_int()));
 
     case NativeId::Pow: {
-        const double base
-            = arguments[0].is_float() ? arguments[0].as_float() : static_cast<double>(arguments[0].as_int());
-        const double exponent
-            = arguments[1].is_float() ? arguments[1].as_float() : static_cast<double>(arguments[1].as_int());
+        const double base = arguments[0].is_float() ? arguments[0].as_float()
+                                                    : static_cast<double>(arguments[0].as_int());
+        const double exponent = arguments[1].is_float()
+            ? arguments[1].as_float()
+            : static_cast<double>(arguments[1].as_int());
         return Value::floating(std::pow(base, exponent));
     }
 
     case NativeId::Sqrt: {
-        const double value
-            = arguments[0].is_float() ? arguments[0].as_float() : static_cast<double>(arguments[0].as_int());
+        const double value = arguments[0].is_float() ? arguments[0].as_float()
+                                                     : static_cast<double>(arguments[0].as_int());
         if (value < 0.0) {
             VM::fail("sqrt of a negative number", "Fire has no complex numbers");
         }
@@ -376,7 +375,8 @@ Value invoke_native(VM& vm, std::uint16_t id, std::vector<Value>& arguments)
             point = lead & 0x1FU;
         }
         for (int i = 1; i <= extra && static_cast<std::size_t>(i) < text.size(); ++i) {
-            point = (point << 6) | (static_cast<unsigned char>(text[static_cast<std::size_t>(i)]) & 0x3FU);
+            point = (point << 6)
+                | (static_cast<unsigned char>(text[static_cast<std::size_t>(i)]) & 0x3FU);
         }
         return Value::integer(static_cast<std::int64_t>(point));
     }
@@ -452,7 +452,7 @@ Value invoke_native(VM& vm, std::uint16_t id, std::vector<Value>& arguments)
     case NativeId::Input: {
         std::string line;
         if (!std::getline(vm.in(), line)) {
-            return Value::string(std::string {});
+            return Value::string(std::string { });
         }
         if (!line.empty() && line.back() == '\r') {
             line.pop_back();
@@ -477,8 +477,8 @@ Value invoke_native(VM& vm, std::uint16_t id, std::vector<Value>& arguments)
 
     case NativeId::Assert: {
         if (!arguments[0].as_bool()) {
-            const std::string detail
-                = arguments.size() > 1 ? arguments[1].as_str() : std::string { "assertion failed" };
+            const std::string detail =
+                arguments.size() > 1 ? arguments[1].as_str() : std::string { "assertion failed" };
             VM::fail(detail, "an `assert` in this program did not hold");
         }
         return void_result;
@@ -489,8 +489,7 @@ Value invoke_native(VM& vm, std::uint16_t id, std::vector<Value>& arguments)
 
     case NativeId::Clock: {
         const auto now = std::chrono::steady_clock::now().time_since_epoch();
-        const auto nanoseconds
-            = std::chrono::duration_cast<std::chrono::nanoseconds>(now).count();
+        const auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(now).count();
         return Value::floating(static_cast<double>(nanoseconds) / 1e9);
     }
 

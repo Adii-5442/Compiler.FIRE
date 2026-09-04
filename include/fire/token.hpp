@@ -54,16 +54,16 @@ enum class TokenType : std::uint8_t {
     Comma,
     Semicolon,
     Colon,
-    Arrow,   // ->
-    DotDot,  // ..
+    Arrow, // ->
+    DotDot, // ..
 
     // Assignment
-    Assign,       // =
-    PlusAssign,   // +=
-    MinusAssign,  // -=
-    StarAssign,   // *=
-    SlashAssign,  // /=
-    PercentAssign,// %=
+    Assign, // =
+    PlusAssign, // +=
+    MinusAssign, // -=
+    StarAssign, // *=
+    SlashAssign, // /=
+    PercentAssign, // %=
 
     // Arithmetic
     Plus,

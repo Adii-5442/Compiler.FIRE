@@ -52,10 +52,7 @@ private:
     /// Parse `text` in `base` into `value`, reporting on overflow.
     bool parse_integer(const std::string& text, int base, Span span, std::int64_t& value);
 
-    [[nodiscard]] Span span_from(std::uint32_t start) const
-    {
-        return Span { start, m_index };
-    }
+    [[nodiscard]] Span span_from(std::uint32_t start) const { return Span { start, m_index }; }
 
     void push(std::vector<Token>& out, TokenType type, std::uint32_t start);
 

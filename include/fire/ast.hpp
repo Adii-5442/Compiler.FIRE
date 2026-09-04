@@ -28,9 +28,9 @@ namespace fire {
 // ---------------------------------------------------------------------------
 
 enum class UnaryOp : std::uint8_t {
-    Negate,     // -x
-    Not,        // !x
-    BitNot,     // ~x
+    Negate, // -x
+    Not, // !x
+    BitNot, // ~x
 };
 
 enum class BinaryOp : std::uint8_t {
@@ -54,7 +54,7 @@ enum class BinaryOp : std::uint8_t {
 
 enum class LogicalOp : std::uint8_t {
     And, // &&
-    Or,  // ||
+    Or, // ||
 };
 
 [[nodiscard]] const char* unary_op_spelling(UnaryOp op);
@@ -148,7 +148,7 @@ struct ArrayLiteralExpr : Expr {
 /// Where a resolved name lives at run time.
 enum class Storage : std::uint8_t {
     Unresolved,
-    Local,  ///< slot in the current call frame
+    Local, ///< slot in the current call frame
     Global, ///< slot in the VM's global array
 };
 

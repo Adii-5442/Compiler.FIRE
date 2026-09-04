@@ -108,10 +108,9 @@ fire_div_zero:
     {
         std::string out = "fire_fn_" + std::to_string(index) + "_";
         for (const char c : name) {
-            out.push_back((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
-                    || (c >= '0' && c <= '9')
-                ? c
-                : '_');
+            out.push_back((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
+                    ? c
+                    : '_');
         }
         return out;
     }
@@ -142,7 +141,7 @@ fire_div_zero:
         }
 
         /// Report a construct the backend cannot lower, once per feature.
-        void unsupported(Span span, const std::string& what, const std::string& detail = {});
+        void unsupported(Span span, const std::string& what, const std::string& detail = { });
 
         [[nodiscard]] bool supported_scalar(const Type* type) const
         {
@@ -191,8 +190,8 @@ fire_div_zero:
             return;
         }
         m_reported[what] = true;
-        auto builder = m_diagnostics.error(
-            "N0001", "the native backend does not support " + what, span);
+        auto builder =
+            m_diagnostics.error("N0001", "the native backend does not support " + what, span);
         builder.label("not available when compiling to a native executable");
         if (!detail.empty()) {
             builder.note(detail);
@@ -311,7 +310,8 @@ fire_div_zero:
     {
         if (!supported_scalar(expr.left->type)) {
             unsupported(expr.span,
-                "`" + (expr.left->type != nullptr ? expr.left->type->to_string()
+                "`"
+                    + (expr.left->type != nullptr ? expr.left->type->to_string()
                                                   : std::string { "?" })
                     + "` arithmetic",
                 "the native backend handles `int` and `bool` only");
@@ -354,8 +354,8 @@ fire_div_zero:
                         "new strings on");
                     continue;
                 }
-                const std::string name
-                    = string_constant(static_cast<const StringLiteralExpr&>(argument).value);
+                const std::string name =
+                    string_constant(static_cast<const StringLiteralExpr&>(argument).value);
                 line("lea     rsi, [" + name + "]");
                 line("mov     rdx, " + name + "_len");
                 line("call    fire_write");
@@ -458,7 +458,8 @@ fire_div_zero:
             line("push    0");
             return;
         case ExprKind::ArrayLiteral:
-            unsupported(expr.span, "arrays", "arrays need a heap allocator this backend has none of");
+            unsupported(
+                expr.span, "arrays", "arrays need a heap allocator this backend has none of");
             line("push    0");
             return;
         case ExprKind::Name: {
@@ -634,8 +635,8 @@ fire_div_zero:
             gen_for_range(static_cast<const ForRangeStmt&>(statement));
             return;
         case StmtKind::ForIn:
-            unsupported(statement.span, "`for ... in` over a sequence",
-                "`for i in 0..n` is supported");
+            unsupported(
+                statement.span, "`for ... in` over a sequence", "`for i in 0..n` is supported");
             return;
         case StmtKind::Break:
             if (!m_loops.empty()) {
@@ -666,13 +667,12 @@ fire_div_zero:
     {
         for (const Param& param : function.params) {
             if (!supported_scalar(param.type)) {
-                unsupported(param.span,
-                    "parameters of type `" + param.type->to_string() + '`');
+                unsupported(param.span, "parameters of type `" + param.type->to_string() + '`');
             }
         }
         if (!function.return_type->is_void() && !supported_scalar(function.return_type)) {
-            unsupported(function.name_span,
-                "returning `" + function.return_type->to_string() + '`');
+            unsupported(
+                function.name_span, "returning `" + function.return_type->to_string() + '`');
         }
 
         m_text << '\n';
@@ -690,8 +690,8 @@ fire_div_zero:
         // the rest of codegen can treat parameters exactly like other locals.
         for (std::size_t i = 0; i < function.params.size(); ++i) {
             line("mov     rax, qword [rbp + " + std::to_string(16 + i * 8) + ']');
-            line("mov     qword " + slot_address(Storage::Local, function.params[i].slot)
-                + ", rax");
+            line(
+                "mov     qword " + slot_address(Storage::Local, function.params[i].slot) + ", rax");
         }
         gen_block(*function.body);
         // Falling off the end returns 0; sema guarantees this is only reachable
@@ -752,8 +752,7 @@ fire_div_zero:
 
 } // namespace
 
-std::string emit_x86_64(
-    const Program& program, TypeContext& types, DiagnosticEngine& diagnostics)
+std::string emit_x86_64(const Program& program, TypeContext& types, DiagnosticEngine& diagnostics)
 {
     // The type context is part of the interface because a future backend will
     // need it to synthesise types; nothing here does yet.

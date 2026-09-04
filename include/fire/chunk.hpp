@@ -27,18 +27,18 @@ namespace fire {
 
 enum class OpCode : std::uint8_t {
     // -- stack -------------------------------------------------------------
-    Constant,   ///< u16 index; push constants[index]
+    Constant, ///< u16 index; push constants[index]
     PushTrue,
     PushFalse,
     Pop,
     Dup,
-    Dup2,       ///< duplicate the top two values, order preserved
+    Dup2, ///< duplicate the top two values, order preserved
 
     // -- variables ---------------------------------------------------------
-    GetLocal,   ///< u16 slot
-    SetLocal,   ///< u16 slot; pops
-    GetGlobal,  ///< u16 slot
-    SetGlobal,  ///< u16 slot; pops
+    GetLocal, ///< u16 slot
+    SetLocal, ///< u16 slot; pops
+    GetGlobal, ///< u16 slot
+    SetGlobal, ///< u16 slot; pops
 
     // -- int arithmetic ----------------------------------------------------
     AddInt,
@@ -86,20 +86,20 @@ enum class OpCode : std::uint8_t {
     GreaterEqualStr,
 
     // -- aggregates --------------------------------------------------------
-    MakeArray,  ///< u16 count; pops that many, pushes an array
-    IndexGet,   ///< pops index and target, pushes the element
-    IndexSet,   ///< pops value, index and target
+    MakeArray, ///< u16 count; pops that many, pushes an array
+    IndexGet, ///< pops index and target, pushes the element
+    IndexSet, ///< pops value, index and target
 
     // -- control flow ------------------------------------------------------
-    Jump,           ///< u32 absolute target
-    JumpIfFalse,    ///< u32 target; pops the condition
-    JumpIfFalsePeek,///< u32 target; leaves the condition when it jumps
+    Jump, ///< u32 absolute target
+    JumpIfFalse, ///< u32 target; pops the condition
+    JumpIfFalsePeek, ///< u32 target; leaves the condition when it jumps
     JumpIfTruePeek, ///< u32 target; leaves the condition when it jumps
 
     // -- calls -------------------------------------------------------------
-    Call,       ///< u16 function index, u8 argument count
+    Call, ///< u16 function index, u8 argument count
     CallNative, ///< u16 native id, u8 argument count
-    Return,     ///< returns the value on top of the stack
+    Return, ///< returns the value on top of the stack
     ReturnVoid,
     Halt,
 };

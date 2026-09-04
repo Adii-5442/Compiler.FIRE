@@ -23,7 +23,8 @@ namespace {
             current[0] = i;
             for (std::size_t j = 1; j <= b.size(); ++j) {
                 const std::size_t cost = a[i - 1] == b[j - 1] ? 0 : 1;
-                current[j] = std::min({ previous[j] + 1, current[j - 1] + 1, previous[j - 1] + cost });
+                current[j] =
+                    std::min({ previous[j] + 1, current[j - 1] + 1, previous[j - 1] + cost });
             }
             previous = current;
         }
@@ -120,7 +121,8 @@ Analyzer::Variable* Analyzer::declare(
     Scope& scope = m_scopes.back();
     for (const Variable& existing : scope.variables) {
         if (existing.name == name) {
-            diags().error("E0202", "`" + name + "` is already declared in this scope", span)
+            diags()
+                .error("E0202", "`" + name + "` is already declared in this scope", span)
                 .label("redeclared here")
                 .secondary(existing.span, "first declared here")
                 .help("shadowing is allowed in a nested block, but not twice in one scope");
@@ -296,8 +298,7 @@ void Analyzer::analyze_function(FunctionDecl& function)
 
     if (!function.return_type->is_void() && !always_diverges(function.body.get())) {
         diags()
-            .error("E0206",
-                "not every path through `" + function.name + "` returns a value",
+            .error("E0206", "not every path through `" + function.name + "` returns a value",
                 function.name_span)
             .label("declared to return `" + function.return_type->to_string() + "`")
             .help("add a `return` at the end of the function, or an `else` branch that returns");
@@ -340,8 +341,8 @@ void Analyzer::analyze_statement(Stmt& statement)
         if (m_functions.back().loop_depth == 0) {
             const char* keyword = statement.kind == StmtKind::Break ? "break" : "continue";
             diags()
-                .error("E0207", std::string { "`" } + keyword + "` outside of a loop",
-                    statement.span)
+                .error(
+                    "E0207", std::string { "`" } + keyword + "` outside of a loop", statement.span)
                 .label("there is no enclosing `while` or `for`");
         }
         break;
@@ -367,8 +368,7 @@ void Analyzer::analyze_var_decl(VarDeclStmt& statement)
         declared = m_types.error_type();
     }
 
-    Variable* variable
-        = declare(statement.name, declared, statement.is_const, statement.name_span);
+    Variable* variable = declare(statement.name, declared, statement.is_const, statement.name_span);
     statement.storage = variable->storage;
     statement.slot = variable->slot;
 }
@@ -396,8 +396,7 @@ void Analyzer::analyze_assign(AssignStmt& statement)
         const BinaryOp op = *statement.compound;
         const bool ok = !target->is_error() && !value->is_error()
             && ((target->is_numeric() && target == value)
-                || (op == BinaryOp::Add && target->is(TypeKind::Str)
-                    && value->is(TypeKind::Str)));
+                || (op == BinaryOp::Add && target->is(TypeKind::Str) && value->is(TypeKind::Str)));
         if (!ok && !target->is_error() && !value->is_error()) {
             diags()
                 .error("E0210",
@@ -500,7 +499,8 @@ void Analyzer::analyze_return(ReturnStmt& statement)
 {
     FunctionContext& context = m_functions.back();
     if (context.declaration == nullptr) {
-        diags().error("E0212", "`return` outside of a function", statement.span)
+        diags()
+            .error("E0212", "`return` outside of a function", statement.span)
             .label("top-level code cannot return")
             .help("use `exit(code)` to stop the program");
         if (statement.value) {
@@ -512,7 +512,8 @@ void Analyzer::analyze_return(ReturnStmt& statement)
     if (!statement.value) {
         if (!context.return_type->is_void()) {
             diags()
-                .error("E0213", "`return` without a value in a function that returns `"
+                .error("E0213",
+                    "`return` without a value in a function that returns `"
                         + context.return_type->to_string() + '`',
                     statement.span)
                 .label("expected a value here");
@@ -523,8 +524,8 @@ void Analyzer::analyze_return(ReturnStmt& statement)
     const Type* value = analyze_expression(*statement.value, context.return_type);
     if (context.return_type->is_void()) {
         diags()
-            .error("E0214", "returning a value from a function declared `void`",
-                statement.value->span)
+            .error(
+                "E0214", "returning a value from a function declared `void`", statement.value->span)
             .label("this function has no return type")
             .help("add `-> " + value->to_string() + "` to the signature");
         return;
@@ -580,11 +581,12 @@ const Type* Analyzer::analyze_expression(Expr& expr, const Type* expected)
 
 const Type* Analyzer::analyze_array_literal(ArrayLiteralExpr& expr, const Type* expected)
 {
-    const Type* hint = expected != nullptr && expected->is(TypeKind::Array) ? expected->element()
-                                                                           : nullptr;
+    const Type* hint =
+        expected != nullptr && expected->is(TypeKind::Array) ? expected->element() : nullptr;
     if (expr.elements.empty()) {
         if (hint == nullptr) {
-            diags().error("E0215", "cannot infer the element type of an empty array", expr.span)
+            diags()
+                .error("E0215", "cannot infer the element type of an empty array", expr.span)
                 .label("no elements to infer from")
                 .help("write the type: `let xs: [int] = [];`");
             return m_types.error_type();
@@ -597,11 +599,11 @@ const Type* Analyzer::analyze_array_literal(ArrayLiteralExpr& expr, const Type* 
         const Type* other = analyze_expression(*expr.elements[i], element);
         if (!other->is_error() && !element->is_error() && other != element) {
             diags()
-                .error("E0216", "array elements must all have the same type",
-                    expr.elements[i]->span)
+                .error(
+                    "E0216", "array elements must all have the same type", expr.elements[i]->span)
                 .label("this element is `" + other->to_string() + '`')
-                .secondary(expr.elements[0]->span,
-                    "the first element is `" + element->to_string() + '`');
+                .secondary(
+                    expr.elements[0]->span, "the first element is `" + element->to_string() + '`');
             return m_types.error_type();
         }
     }
@@ -615,11 +617,12 @@ const Type* Analyzer::analyze_name(NameExpr& expr)
 {
     Variable* variable = lookup(expr.name);
     if (variable == nullptr) {
-        auto builder = diags().error("E0217", "cannot find `" + expr.name + "` in this scope",
-            expr.span);
+        auto builder =
+            diags().error("E0217", "cannot find `" + expr.name + "` in this scope", expr.span);
         builder.label("not found");
         if (m_function_table.count(expr.name) != 0 || find_native(expr.name).has_value()) {
-            builder.help("`" + expr.name + "` is a function; call it with `" + expr.name + "(...)`");
+            builder.help(
+                "`" + expr.name + "` is a function; call it with `" + expr.name + "(...)`");
         } else if (const std::string suggestion = suggest_name(expr.name, false);
             !suggestion.empty()) {
             builder.help("did you mean `" + suggestion + "`?");
@@ -796,17 +799,18 @@ const Type* Analyzer::analyze_call(CallExpr& expr)
                 .note(std::string { info.name } + ": " + std::string { info.summary });
             return m_types.error_type();
         }
-        const NativeCallCheck check { m_types, diags(), argument_types, argument_spans,
-            expr.span, info.name };
+        const NativeCallCheck check { m_types, diags(), argument_types, argument_spans, expr.span,
+            info.name };
         return info.check(check);
     }
 
-    auto builder
-        = diags().error("E0221", "cannot find function `" + expr.callee + '`', expr.callee_span);
+    auto builder =
+        diags().error("E0221", "cannot find function `" + expr.callee + '`', expr.callee_span);
     builder.label("not found in this scope");
     if (lookup(expr.callee) != nullptr) {
         builder.help("`" + expr.callee + "` is a variable, not a function");
-    } else if (const std::string suggestion = suggest_name(expr.callee, true); !suggestion.empty()) {
+    } else if (const std::string suggestion = suggest_name(expr.callee, true);
+        !suggestion.empty()) {
         builder.help("did you mean `" + suggestion + "`?");
     }
     return m_types.error_type();
@@ -829,7 +833,8 @@ const Type* Analyzer::analyze_index(IndexExpr& expr)
         // `ord(s[i])` is the way to get a number.
         return m_types.str_type();
     }
-    diags().error("E0222", "cannot index into `" + target->to_string() + '`', expr.span)
+    diags()
+        .error("E0222", "cannot index into `" + target->to_string() + '`', expr.span)
         .label("expected an array or a `str`");
     return m_types.error_type();
 }
@@ -844,7 +849,8 @@ void Analyzer::require_bool(Expr& expr, const char* construct)
         return;
     }
     auto builder = diags().error("E0223",
-        std::string { "`" } + construct + "` needs a `bool`, found `" + expr.type->to_string() + '`',
+        std::string { "`" } + construct + "` needs a `bool`, found `" + expr.type->to_string()
+            + '`',
         expr.span);
     builder.label("expected `bool`");
     if (expr.type->is_numeric()) {

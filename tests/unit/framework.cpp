@@ -106,8 +106,8 @@ int run_all(const std::string& filter)
     }
 
     std::cout << '\n'
-              << passed << " passed, " << failed.size() << " failed, "
-              << registry().size() << " registered\n";
+              << passed << " passed, " << failed.size() << " failed, " << registry().size()
+              << " registered\n";
     return failed.empty() ? 0 : 1;
 }
 

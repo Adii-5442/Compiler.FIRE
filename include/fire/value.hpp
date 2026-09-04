@@ -92,7 +92,7 @@ public:
     [[nodiscard]] bool equals(const Value& other) const;
 
 private:
-    template <typename T>
+    template<typename T>
     explicit Value(T value)
         : m_data(std::move(value))
     {

@@ -40,9 +40,9 @@ public:
         const SourceFile* source = nullptr;
         /// What the `args()` builtin returns.
         std::vector<std::string> program_args;
-        std::ostream* out = nullptr;   ///< defaults to std::cout
-        std::ostream* err = nullptr;   ///< defaults to std::cerr
-        std::istream* in = nullptr;    ///< defaults to std::cin
+        std::ostream* out = nullptr; ///< defaults to std::cout
+        std::ostream* err = nullptr; ///< defaults to std::cerr
+        std::istream* in = nullptr; ///< defaults to std::cin
         /// Disassemble every instruction before executing it.
         bool trace = false;
         bool color = false;
@@ -72,7 +72,7 @@ public:
     [[nodiscard]] const std::vector<Value>& globals() const { return m_globals; }
     void adopt_globals(std::vector<Value> globals);
 
-    [[noreturn]] static void fail(std::string message, std::string help = {});
+    [[noreturn]] static void fail(std::string message, std::string help = { });
 
 private:
     struct Frame {

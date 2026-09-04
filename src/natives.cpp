@@ -7,11 +7,17 @@
 namespace fire {
 namespace {
 
-    const Type* error_of(const NativeCallCheck& check) { return check.types.error_type(); }
+    const Type* error_of(const NativeCallCheck& check)
+    {
+        return check.types.error_type();
+    }
 
     /// True when the type is already poisoned, in which case a checker should
     /// stay quiet: the real error has been reported somewhere upstream.
-    bool poisoned(const Type* type) { return type == nullptr || type->is_error(); }
+    bool poisoned(const Type* type)
+    {
+        return type == nullptr || type->is_error();
+    }
 
     // -- individual signature checkers --------------------------------------
 
@@ -122,7 +128,8 @@ namespace {
     }
 
     /// Shared shape for the one-argument conversions.
-    template <TypeKind kResult> const Type* check_conversion(const NativeCallCheck& check)
+    template<TypeKind kResult>
+    const Type* check_conversion(const NativeCallCheck& check)
     {
         const Type* result = kResult == TypeKind::Int ? check.types.int_type()
             : kResult == TypeKind::Float              ? check.types.float_type()
@@ -204,7 +211,8 @@ namespace {
     }
 
     /// Every argument must be `str`; the result type is supplied by kResult.
-    template <TypeKind kResult> const Type* check_all_str(const NativeCallCheck& check)
+    template<TypeKind kResult>
+    const Type* check_all_str(const NativeCallCheck& check)
     {
         for (std::size_t i = 0; i < check.arguments.size(); ++i) {
             if (!poisoned(check.arguments[i]) && !check.arguments[i]->is(TypeKind::Str)) {
@@ -252,9 +260,15 @@ namespace {
         return check.types.str_type();
     }
 
-    const Type* check_nullary_str(const NativeCallCheck& check) { return check.types.str_type(); }
+    const Type* check_nullary_str(const NativeCallCheck& check)
+    {
+        return check.types.str_type();
+    }
 
-    const Type* check_nullary_bool(const NativeCallCheck& check) { return check.types.bool_type(); }
+    const Type* check_nullary_bool(const NativeCallCheck& check)
+    {
+        return check.types.bool_type();
+    }
 
     const Type* check_nullary_float(const NativeCallCheck& check)
     {
@@ -338,9 +352,11 @@ namespace {
             { "ceil", 1, 1, check_rounding, false, "round up to an int" },
             { "round", 1, 1, check_rounding, false, "round to the nearest int" },
             { "chr", 1, 1, check_chr, false, "one-character string from a code point" },
-            { "ord", 1, 1, check_all_str<TypeKind::Int>, false, "code point of the first character" },
+            { "ord", 1, 1, check_all_str<TypeKind::Int>, false,
+                "code point of the first character" },
             { "find", 2, 2, check_all_str<TypeKind::Int>, false, "index of a substring, or -1" },
-            { "split", 2, 2, check_all_str<TypeKind::Array>, false, "split a string on a separator" },
+            { "split", 2, 2, check_all_str<TypeKind::Array>, false,
+                "split a string on a separator" },
             { "join", 2, 2, check_join, false, "join `[str]` with a separator" },
             { "trim", 1, 1, check_all_str<TypeKind::Str>, false, "strip leading/trailing space" },
             { "upper", 1, 1, check_all_str<TypeKind::Str>, false, "uppercase a string" },
@@ -381,7 +397,10 @@ const Type* NativeCallCheck::mismatch(std::size_t index, std::string_view expect
     return types.error_type();
 }
 
-const std::vector<NativeInfo>& native_table() { return build_table(); }
+const std::vector<NativeInfo>& native_table()
+{
+    return build_table();
+}
 
 const NativeInfo& native_info(NativeId id)
 {

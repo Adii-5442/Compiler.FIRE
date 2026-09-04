@@ -8,13 +8,13 @@
 #include <string_view>
 
 #if defined(_WIN32)
-#    include <io.h>
-#    define FIRE_ISATTY _isatty
-#    define FIRE_FILENO _fileno
+#include <io.h>
+#define FIRE_ISATTY _isatty
+#define FIRE_FILENO _fileno
 #else
-#    include <unistd.h>
-#    define FIRE_ISATTY isatty
-#    define FIRE_FILENO fileno
+#include <unistd.h>
+#define FIRE_ISATTY isatty
+#define FIRE_FILENO fileno
 #endif
 
 namespace fire {

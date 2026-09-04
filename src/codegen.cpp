@@ -11,7 +11,10 @@ namespace fire {
 // Emit helpers
 // ---------------------------------------------------------------------------
 
-void CodeGenerator::emit(OpCode op, Span span) { chunk().write_op(op, span); }
+void CodeGenerator::emit(OpCode op, Span span)
+{
+    chunk().write_op(op, span);
+}
 
 void CodeGenerator::emit_constant(const Value& value, Span span)
 {
@@ -74,7 +77,7 @@ Module CodeGenerator::generate(const Program& program)
             gen_statement(*statement);
         }
     }
-    emit(OpCode::Halt, Span {});
+    emit(OpCode::Halt, Span { });
 
     module.functions.reserve(program.functions.size());
     for (const std::unique_ptr<FunctionDecl>& function : program.functions) {
@@ -229,7 +232,7 @@ void CodeGenerator::gen_while(const WhileStmt& statement)
     gen_expression(*statement.condition);
     const std::size_t to_end = emit_jump(OpCode::JumpIfFalse, statement.condition->span);
 
-    m_loops.push_back(LoopContext {});
+    m_loops.push_back(LoopContext { });
     gen_statement(*statement.body);
     const std::size_t back = emit_jump(OpCode::Jump, statement.span);
     patch_to(back, condition_at);
@@ -254,7 +257,7 @@ void CodeGenerator::gen_for_range(const ForRangeStmt& statement)
 
     // `continue` must run the increment, which is only emitted below, so its
     // jumps are collected and patched by close_loop.
-    m_loops.push_back(LoopContext {});
+    m_loops.push_back(LoopContext { });
     gen_statement(*statement.body);
 
     const std::uint32_t increment_at = here();
@@ -293,7 +296,7 @@ void CodeGenerator::gen_for_in(const ForInStmt& statement)
     emit(OpCode::IndexGet, statement.span);
     emit_store(Storage::Local, statement.slot, statement.var_span);
 
-    m_loops.push_back(LoopContext {});
+    m_loops.push_back(LoopContext { });
     gen_statement(*statement.body);
 
     const std::uint32_t increment_at = here();
@@ -379,7 +382,8 @@ void CodeGenerator::gen_logical(const LogicalExpr& expr)
     gen_expression(*expr.left);
     // The peeking jumps leave the left operand on the stack when they are
     // taken, which is exactly the short-circuit result.
-    const OpCode jump = expr.op == LogicalOp::And ? OpCode::JumpIfFalsePeek : OpCode::JumpIfTruePeek;
+    const OpCode jump =
+        expr.op == LogicalOp::And ? OpCode::JumpIfFalsePeek : OpCode::JumpIfTruePeek;
     const std::size_t to_end = emit_jump(jump, expr.span);
     emit(OpCode::Pop, expr.span);
     gen_expression(*expr.right);

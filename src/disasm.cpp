@@ -63,9 +63,8 @@ std::size_t disassemble_instruction(
         break;
     case OpCode::CallNative: {
         const std::uint16_t id = chunk.read_u16(offset + 1);
-        out << std::setw(6) << id << "  ; "
-            << native_table()[id].name << ", " << static_cast<int>(chunk.byte_at(offset + 3))
-            << " args";
+        out << std::setw(6) << id << "  ; " << native_table()[id].name << ", "
+            << static_cast<int>(chunk.byte_at(offset + 3)) << " args";
         break;
     }
     default:
@@ -78,8 +77,8 @@ std::size_t disassemble_instruction(
 void disassemble_function(
     std::ostream& out, const CompiledFunction& function, const SourceFile* source)
 {
-    out << "== " << function.name << " (" << function.arity << " params, "
-        << function.local_count << " slots, " << function.chunk.size() << " bytes) ==\n";
+    out << "== " << function.name << " (" << function.arity << " params, " << function.local_count
+        << " slots, " << function.chunk.size() << " bytes) ==\n";
     std::size_t offset = 0;
     while (offset < function.chunk.size()) {
         offset = disassemble_instruction(out, function.chunk, offset, source);

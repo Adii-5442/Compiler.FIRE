@@ -2,9 +2,9 @@
 #include "fire/value.hpp"
 
 #include <cmath>
-#include <cstring>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <sstream>
 
 namespace fire {
@@ -133,7 +133,7 @@ std::string Value::to_display() const
     case ValueTag::Array:
         return render_array(as_array());
     }
-    return {};
+    return { };
 }
 
 std::string Value::to_repr() const

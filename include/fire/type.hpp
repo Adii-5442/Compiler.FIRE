@@ -17,11 +17,11 @@
 namespace fire {
 
 enum class TypeKind : std::uint8_t {
-    Int,   ///< signed 64-bit integer
+    Int, ///< signed 64-bit integer
     Float, ///< IEEE-754 double
     Bool,
-    Str,   ///< immutable UTF-8 string
-    Void,  ///< the result of a function that returns nothing
+    Str, ///< immutable UTF-8 string
+    Void, ///< the result of a function that returns nothing
     Array, ///< [T], a growable, reference-semantics sequence
     Error, ///< poison type; already-reported errors propagate as this
 };

@@ -85,8 +85,8 @@ namespace {
             return;
         }
 
-        auto call = std::make_unique<CallExpr>(
-            expression.expr->span, "println", expression.expr->span);
+        auto call =
+            std::make_unique<CallExpr>(expression.expr->span, "println", expression.expr->span);
         call->target = CallTarget::Native;
         call->index = static_cast<std::uint32_t>(NativeId::Println);
         call->type = expression.expr->type; // any non-void type; only voidness matters

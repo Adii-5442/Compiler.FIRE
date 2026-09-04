@@ -30,8 +30,12 @@ void print_usage(std::ostream& out)
     out << kLanguageName << " " << version_string() << " — a compiler for the " << kSourceExtension
         << " language\n\n"
            "USAGE\n"
-           "  fire <command> [options] <file" << kSourceExtension << "> [-- program args]\n"
-           "  fire <file" << kSourceExtension << ">            shorthand for `fire run`\n\n"
+           "  fire <command> [options] <file"
+        << kSourceExtension
+        << "> [-- program args]\n"
+           "  fire <file"
+        << kSourceExtension
+        << ">            shorthand for `fire run`\n\n"
            "COMMANDS\n"
            "  run <file>       compile and execute on the Fire VM\n"
            "  build <file>     compile to a native x86-64 executable\n"
@@ -72,8 +76,10 @@ void print_builtins(std::ostream& out)
         out << "  " << std::left << std::setw(12) << native.name << std::setw(6) << arity
             << native.summary << '\n';
     }
-    out << "\n" << native_table().size() << " builtins. See docs/language-reference.md for "
-                                            "signatures.\n";
+    out << "\n"
+        << native_table().size()
+        << " builtins. See docs/language-reference.md for "
+           "signatures.\n";
 }
 
 struct Options {
@@ -103,8 +109,7 @@ void warn_extension(const std::string& path)
 {
     const std::string_view name { path };
     if (name.size() < 5 || name.substr(name.size() - 5) != kSourceExtension) {
-        std::cerr << "fire: warning: '" << path << "' does not end in " << kSourceExtension
-                  << '\n';
+        std::cerr << "fire: warning: '" << path << "' does not end in " << kSourceExtension << '\n';
     }
 }
 
@@ -158,8 +163,8 @@ int command_emit(const Options& options)
     }
     Compilation compilation { std::move(*source), options.color };
 
-    const bool needs_codegen = options.emit == Options::EmitForm::Bytecode
-        || options.emit == Options::EmitForm::Assembly;
+    const bool needs_codegen =
+        options.emit == Options::EmitForm::Bytecode || options.emit == Options::EmitForm::Assembly;
     const bool ok = needs_codegen ? compilation.compile() : compilation.analyze();
     compilation.report(std::cerr);
     if (!ok) {
@@ -189,8 +194,8 @@ int command_emit(const Options& options)
         break;
     case Options::EmitForm::Assembly: {
         DiagnosticEngine& diagnostics = compilation.diagnostics();
-        const std::string assembly
-            = emit_x86_64(compilation.program(), compilation.types(), diagnostics);
+        const std::string assembly =
+            emit_x86_64(compilation.program(), compilation.types(), diagnostics);
         if (diagnostics.has_errors()) {
             compilation.report(std::cerr);
             return kExitCompileError;

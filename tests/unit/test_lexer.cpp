@@ -118,12 +118,28 @@ FIRE_TEST(lexer, maximal_munch_on_operators)
 {
     const Scan result = scan("< << <= - -> -= > >> >= == = ! != && & || | ^ ~ %= *= /=");
     const std::vector<TokenType> expected {
-        TokenType::Less, TokenType::LessLess, TokenType::LessEqual, TokenType::Minus,
-        TokenType::Arrow, TokenType::MinusAssign, TokenType::Greater, TokenType::GreaterGreater,
-        TokenType::GreaterEqual, TokenType::EqualEqual, TokenType::Assign, TokenType::Bang,
-        TokenType::BangEqual, TokenType::AmpAmp, TokenType::Amp, TokenType::PipePipe,
-        TokenType::Pipe, TokenType::Caret, TokenType::Tilde, TokenType::PercentAssign,
-        TokenType::StarAssign, TokenType::SlashAssign,
+        TokenType::Less,
+        TokenType::LessLess,
+        TokenType::LessEqual,
+        TokenType::Minus,
+        TokenType::Arrow,
+        TokenType::MinusAssign,
+        TokenType::Greater,
+        TokenType::GreaterGreater,
+        TokenType::GreaterEqual,
+        TokenType::EqualEqual,
+        TokenType::Assign,
+        TokenType::Bang,
+        TokenType::BangEqual,
+        TokenType::AmpAmp,
+        TokenType::Amp,
+        TokenType::PipePipe,
+        TokenType::Pipe,
+        TokenType::Caret,
+        TokenType::Tilde,
+        TokenType::PercentAssign,
+        TokenType::StarAssign,
+        TokenType::SlashAssign,
     };
     FIRE_CHECK_EQ(result.tokens.size(), expected.size() + 1);
     for (std::size_t i = 0; i < expected.size() && i < result.tokens.size(); ++i) {

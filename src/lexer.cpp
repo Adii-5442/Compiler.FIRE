@@ -13,20 +13,35 @@ namespace {
         return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
     }
 
-    bool is_ident_continue(char c) { return is_ident_start(c) || (c >= '0' && c <= '9'); }
+    bool is_ident_continue(char c)
+    {
+        return is_ident_start(c) || (c >= '0' && c <= '9');
+    }
 
-    bool is_decimal_digit(char c) { return c >= '0' && c <= '9'; }
+    bool is_decimal_digit(char c)
+    {
+        return c >= '0' && c <= '9';
+    }
 
     bool is_hex_digit(char c)
     {
         return is_decimal_digit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
     }
 
-    bool is_binary_digit(char c) { return c == '0' || c == '1'; }
+    bool is_binary_digit(char c)
+    {
+        return c == '0' || c == '1';
+    }
 
-    bool is_octal_digit(char c) { return c >= '0' && c <= '7'; }
+    bool is_octal_digit(char c)
+    {
+        return c >= '0' && c <= '7';
+    }
 
-    bool is_space(char c) { return c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\f'; }
+    bool is_space(char c)
+    {
+        return c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\f';
+    }
 
     int hex_value(char c)
     {
@@ -75,7 +90,10 @@ char Lexer::peek_or(char fallback, std::uint32_t offset) const
     return peek(offset).value_or(fallback);
 }
 
-char Lexer::advance() { return m_source.text()[m_index++]; }
+char Lexer::advance()
+{
+    return m_source.text()[m_index++];
+}
 
 bool Lexer::match(char expected)
 {
@@ -290,7 +308,9 @@ bool Lexer::lex_escape(std::string& out)
         return true;
     case 'x': {
         if (!is_hex_digit(peek_or('\0')) || !is_hex_digit(peek_or('\0', 1))) {
-            m_diagnostics.error("E0007", "`\\x` escape needs exactly two hex digits", span_from(escape_start))
+            m_diagnostics
+                .error(
+                    "E0007", "`\\x` escape needs exactly two hex digits", span_from(escape_start))
                 .help("write `\\x41` for the byte 0x41");
             return false;
         }
@@ -301,7 +321,8 @@ bool Lexer::lex_escape(std::string& out)
     }
     case 'u': {
         if (!match('{')) {
-            m_diagnostics.error("E0007", "`\\u` escape must be followed by `{`", span_from(escape_start))
+            m_diagnostics
+                .error("E0007", "`\\u` escape must be followed by `{`", span_from(escape_start))
                 .help("write `\\u{1F525}` for a code point");
             return false;
         }
@@ -488,8 +509,8 @@ std::vector<Token> Lexer::tokenize()
             while (!at_end() && peek_or('\0') == c) {
                 advance();
             }
-            std::string what = c >= 32 && c < 127 ? std::string { '`', c, '`' }
-                                                  : "non-printable byte";
+            std::string what =
+                c >= 32 && c < 127 ? std::string { '`', c, '`' } : "non-printable byte";
             m_diagnostics.error("E0010", "unexpected character " + what, span_from(start))
                 .label("this character is not part of any Fire token");
             break;

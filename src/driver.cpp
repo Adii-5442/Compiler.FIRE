@@ -49,7 +49,10 @@ bool Compilation::compile()
     return true;
 }
 
-void Compilation::report(std::ostream& out) const { m_diagnostics.render(out); }
+void Compilation::report(std::ostream& out) const
+{
+    m_diagnostics.render(out);
+}
 
 // ---------------------------------------------------------------------------
 // Debug dumps
@@ -57,14 +60,14 @@ void Compilation::report(std::ostream& out) const { m_diagnostics.render(out); }
 
 void dump_tokens(std::ostream& out, const SourceFile& source, const std::vector<Token>& tokens)
 {
-    out << std::left << std::setw(10) << "LINE:COL" << std::setw(10) << "KIND"
-        << std::setw(22) << "TOKEN" << "VALUE\n";
+    out << std::left << std::setw(10) << "LINE:COL" << std::setw(10) << "KIND" << std::setw(22)
+        << "TOKEN" << "VALUE\n";
     out << std::string(60, '-') << '\n';
     for (const Token& token : tokens) {
         const LineCol at = source.locate(token.span.begin);
-        out << std::left << std::setw(10) << (std::to_string(at.line) + ':' + std::to_string(at.column))
-            << std::setw(10) << token_type_tag(token.type) << std::setw(22)
-            << token_type_name(token.type);
+        out << std::left << std::setw(10)
+            << (std::to_string(at.line) + ':' + std::to_string(at.column)) << std::setw(10)
+            << token_type_tag(token.type) << std::setw(22) << token_type_name(token.type);
         switch (token.type) {
         case TokenType::Identifier:
         case TokenType::StringLiteral:
@@ -85,7 +88,10 @@ void dump_tokens(std::ostream& out, const SourceFile& source, const std::vector<
 
 namespace {
 
-    void indent(std::ostream& out, int depth) { out << std::string(static_cast<std::size_t>(depth) * 2, ' '); }
+    void indent(std::ostream& out, int depth)
+    {
+        out << std::string(static_cast<std::size_t>(depth) * 2, ' ');
+    }
 
     void dump_expr(std::ostream& out, const Expr& expr, int depth);
 
@@ -107,7 +113,8 @@ namespace {
             out << "(float " << format_float(static_cast<const FloatLiteralExpr&>(expr).value);
             break;
         case ExprKind::StringLiteral:
-            out << "(str " << Value::string(static_cast<const StringLiteralExpr&>(expr).value).to_repr();
+            out << "(str "
+                << Value::string(static_cast<const StringLiteralExpr&>(expr).value).to_repr();
             break;
         case ExprKind::BoolLiteral:
             out << "(bool " << (static_cast<const BoolLiteralExpr&>(expr).value ? "true" : "false");
@@ -215,9 +222,9 @@ namespace {
         case StmtKind::Assign: {
             const auto& assign = static_cast<const AssignStmt&>(statement);
             out << "(assign"
-                << (assign.compound.has_value() ? std::string { " " }
-                            + binary_op_spelling(*assign.compound) + "="
-                                                : std::string {})
+                << (assign.compound.has_value()
+                           ? std::string { " " } + binary_op_spelling(*assign.compound) + "="
+                           : std::string { })
                 << '\n';
             dump_expr(out, *assign.target, depth + 1);
             dump_expr(out, *assign.value, depth + 1);

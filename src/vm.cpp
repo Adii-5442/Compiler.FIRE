@@ -27,9 +27,18 @@ void VM::adopt_globals(std::vector<Value> globals)
     m_globals.resize(m_module.global_count, Value::integer(0));
 }
 
-std::ostream& VM::out() { return m_options.out != nullptr ? *m_options.out : std::cout; }
-std::ostream& VM::err() { return m_options.err != nullptr ? *m_options.err : std::cerr; }
-std::istream& VM::in() { return m_options.in != nullptr ? *m_options.in : std::cin; }
+std::ostream& VM::out()
+{
+    return m_options.out != nullptr ? *m_options.out : std::cout;
+}
+std::ostream& VM::err()
+{
+    return m_options.err != nullptr ? *m_options.err : std::cerr;
+}
+std::istream& VM::in()
+{
+    return m_options.in != nullptr ? *m_options.in : std::cin;
+}
 
 void VM::fail(std::string message, std::string help)
 {
@@ -43,7 +52,10 @@ Value VM::pop()
     return value;
 }
 
-Value& VM::peek(std::size_t distance) { return m_stack[m_stack.size() - 1 - distance]; }
+Value& VM::peek(std::size_t distance)
+{
+    return m_stack[m_stack.size() - 1 - distance];
+}
 
 std::uint8_t VM::read_u8()
 {
@@ -243,8 +255,8 @@ void VM::execute()
                 fail("shift amount " + std::to_string(right) + " is out of range",
                     "a shift of an `int` must move between 0 and 63 bits");
             }
-            peek() = Value::integer(static_cast<std::int64_t>(
-                static_cast<std::uint64_t>(peek().as_int()) << right));
+            peek() = Value::integer(
+                static_cast<std::int64_t>(static_cast<std::uint64_t>(peek().as_int()) << right));
             break;
         }
         case OpCode::ShiftRight: {
@@ -330,7 +342,8 @@ void VM::execute()
             if (target.is_str()) {
                 const std::string& text = target.as_str();
                 if (index < 0 || static_cast<std::size_t>(index) >= text.size()) {
-                    fail("string index " + std::to_string(index) + " is out of bounds for a string of length "
+                    fail("string index " + std::to_string(index)
+                            + " is out of bounds for a string of length "
                             + std::to_string(text.size()),
                         "valid indices run from 0 to len(s) - 1");
                 }
@@ -338,7 +351,8 @@ void VM::execute()
             } else {
                 const std::vector<Value>& elements = target.as_array();
                 if (index < 0 || static_cast<std::size_t>(index) >= elements.size()) {
-                    fail("index " + std::to_string(index) + " is out of bounds for an array of length "
+                    fail("index " + std::to_string(index)
+                            + " is out of bounds for an array of length "
                             + std::to_string(elements.size()),
                         "valid indices run from 0 to len(xs) - 1");
                 }
@@ -433,8 +447,8 @@ void VM::report(const RuntimeError& error) const
     // ip has already advanced past the operands of the failing instruction, so
     // step back to the start of the instruction where possible.
     const std::size_t at = frame.ip > 0 ? frame.ip - 1 : 0;
-    auto builder = engine.error("R0001", "runtime error: " + error.message,
-        frame.function->chunk.span_at(at));
+    auto builder =
+        engine.error("R0001", "runtime error: " + error.message, frame.function->chunk.span_at(at));
     builder.label("while evaluating this");
     if (!error.help.empty()) {
         builder.help(error.help);
@@ -446,8 +460,8 @@ void VM::report(const RuntimeError& error) const
         std::size_t depth = 0;
         for (auto it = m_frames.rbegin(); it != m_frames.rend(); ++it, ++depth) {
             const std::size_t offset = it->ip > 0 ? it->ip - 1 : 0;
-            const LineCol location
-                = m_options.source->locate(it->function->chunk.span_at(offset).begin);
+            const LineCol location =
+                m_options.source->locate(it->function->chunk.span_at(offset).begin);
             stream << "  " << depth << ": " << it->function->name << " at "
                    << m_options.source->path() << ':' << location.line << ':' << location.column
                    << '\n';

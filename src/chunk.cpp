@@ -155,9 +155,15 @@ void Chunk::write(std::uint8_t byte, Span span)
     m_code.push_back(byte);
 }
 
-void Chunk::write_op(OpCode op, Span span) { write(static_cast<std::uint8_t>(op), span); }
+void Chunk::write_op(OpCode op, Span span)
+{
+    write(static_cast<std::uint8_t>(op), span);
+}
 
-void Chunk::write_u8(std::uint8_t value, Span span) { write(value, span); }
+void Chunk::write_u8(std::uint8_t value, Span span)
+{
+    write(value, span);
+}
 
 void Chunk::write_u16(std::uint16_t value, Span span)
 {
@@ -187,8 +193,8 @@ void Chunk::patch_u32(std::size_t offset, std::uint32_t value)
 {
     assert(offset + 4 <= m_code.size() && "patch target is outside the chunk");
     for (int i = 0; i < 4; ++i) {
-        m_code[offset + static_cast<std::size_t>(i)]
-            = static_cast<std::uint8_t>((value >> (8 * i)) & 0xFF);
+        m_code[offset + static_cast<std::size_t>(i)] =
+            static_cast<std::uint8_t>((value >> (8 * i)) & 0xFF);
     }
 }
 
@@ -210,7 +216,7 @@ std::uint32_t Chunk::read_u32(std::size_t offset) const
 Span Chunk::span_at(std::size_t offset) const
 {
     if (m_spans.empty()) {
-        return Span {};
+        return Span { };
     }
     // Last entry whose offset is <= the one asked for.
     auto it = std::upper_bound(m_spans.begin(), m_spans.end(), offset,

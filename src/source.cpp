@@ -49,8 +49,7 @@ LineCol SourceFile::locate(std::uint32_t offset) const
     if (m_text.empty()) {
         return LineCol { 1, 1 };
     }
-    const auto clamped
-        = std::min<std::uint32_t>(offset, static_cast<std::uint32_t>(m_text.size()));
+    const auto clamped = std::min<std::uint32_t>(offset, static_cast<std::uint32_t>(m_text.size()));
 
     // The first line start strictly greater than `clamped` is one past the
     // line we want, so step back once.
@@ -66,7 +65,7 @@ LineCol SourceFile::locate(std::uint32_t offset) const
 std::string_view SourceFile::line_text(std::uint32_t line) const
 {
     if (line == 0 || line > line_count()) {
-        return {};
+        return { };
     }
     const std::uint32_t begin = m_line_starts[line - 1];
     const std::uint32_t end = line < line_count()

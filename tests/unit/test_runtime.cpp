@@ -29,8 +29,8 @@ FIRE_TEST(value, strings_are_quoted_inside_arrays_only)
     const Value text = Value::string(std::string { "a b" });
     FIRE_CHECK_EQ(text.to_display(), std::string { "a b" });
     FIRE_CHECK_EQ(text.to_repr(), std::string { "\"a b\"" });
-    FIRE_CHECK_EQ(Value::array(std::vector<Value> { text }).to_display(),
-        std::string { "[\"a b\"]" });
+    FIRE_CHECK_EQ(
+        Value::array(std::vector<Value> { text }).to_display(), std::string { "[\"a b\"]" });
 }
 
 FIRE_TEST(value, equality_is_structural_and_type_aware)
@@ -69,8 +69,8 @@ FIRE_TEST(chunk, operands_round_trip)
 FIRE_TEST(chunk, jump_targets_can_be_patched)
 {
     Chunk chunk;
-    chunk.write_op(OpCode::Jump, Span {});
-    chunk.write_u32(0xFFFFFFFF, Span {});
+    chunk.write_op(OpCode::Jump, Span { });
+    chunk.write_u32(0xFFFFFFFF, Span { });
     chunk.patch_u32(1, 42);
     FIRE_CHECK_EQ(chunk.read_u32(1), std::uint32_t { 42 });
 }
@@ -133,8 +133,8 @@ FIRE_TEST(builtins, array_operations)
         println(remove(xs, 2), pop(xs), xs);
         println(slice([1,2,3,4,5], 1, 4), slice([1,2,3], 0, 99));
     )");
-    FIRE_CHECK_EQ(result.output,
-        std::string { "[0, 1, 2, 3, 4] 5\n2 4 [0, 1, 3]\n[2, 3, 4] [1, 2, 3]\n" });
+    FIRE_CHECK_EQ(
+        result.output, std::string { "[0, 1, 2, 3, 4] 5\n2 4 [0, 1, 3]\n[2, 3, 4] [1, 2, 3]\n" });
 }
 
 FIRE_TEST(builtins, string_operations)

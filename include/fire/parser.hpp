@@ -49,7 +49,7 @@ private:
     const Token& expect(TokenType type, const std::string& context);
 
     [[noreturn]] void fail(const std::string& code, const std::string& message, Span span,
-        const std::string& label = {});
+        const std::string& label = { });
     void synchronize();
 
     // -- grammar ------------------------------------------------------------

@@ -13,7 +13,10 @@ const Token& Parser::peek(std::size_t offset) const
     return m_tokens[at < m_tokens.size() ? at : m_tokens.size() - 1];
 }
 
-const Token& Parser::previous() const { return m_tokens[m_index > 0 ? m_index - 1 : 0]; }
+const Token& Parser::previous() const
+{
+    return m_tokens[m_index > 0 ? m_index - 1 : 0];
+}
 
 const Token& Parser::advance()
 {
@@ -39,7 +42,7 @@ void Parser::fail(
     if (!label.empty()) {
         builder.label(label);
     }
-    throw ParseError {};
+    throw ParseError { };
 }
 
 const Token& Parser::expect(TokenType type, const std::string& context)
@@ -258,16 +261,15 @@ StmtPtr Parser::parse_statement()
 StmtPtr Parser::parse_var_decl(bool is_const)
 {
     const Span start = previous().span;
-    const Token& name = expect(TokenType::Identifier,
-        is_const ? "after `const`" : "after `let`");
+    const Token& name = expect(TokenType::Identifier, is_const ? "after `const`" : "after `let`");
 
     auto decl = std::make_unique<VarDeclStmt>(start, name.text, name.span, is_const);
     if (match(TokenType::Colon)) {
         decl->annotation = parse_type();
     }
     if (!match(TokenType::Assign)) {
-        fail("E0104", "a variable must be given an initial value", peek().span,
-            "expected `=` here");
+        fail(
+            "E0104", "a variable must be given an initial value", peek().span, "expected `=` here");
     }
     decl->init = parse_expression();
     const Token& semi = expect(TokenType::Semicolon, "after a variable declaration");
@@ -368,7 +370,10 @@ StmtPtr Parser::parse_simple_statement()
 // Expressions
 // ---------------------------------------------------------------------------
 
-ExprPtr Parser::parse_expression() { return parse_logical_or(); }
+ExprPtr Parser::parse_expression()
+{
+    return parse_logical_or();
+}
 
 ExprPtr Parser::parse_logical_or()
 {
@@ -376,7 +381,8 @@ ExprPtr Parser::parse_logical_or()
     while (match(TokenType::PipePipe)) {
         ExprPtr right = parse_logical_and();
         const Span span = left->span.merge(right->span);
-        left = std::make_unique<LogicalExpr>(span, LogicalOp::Or, std::move(left), std::move(right));
+        left =
+            std::make_unique<LogicalExpr>(span, LogicalOp::Or, std::move(left), std::move(right));
     }
     return left;
 }
@@ -387,8 +393,8 @@ ExprPtr Parser::parse_logical_and()
     while (match(TokenType::AmpAmp)) {
         ExprPtr right = parse_equality();
         const Span span = left->span.merge(right->span);
-        left
-            = std::make_unique<LogicalExpr>(span, LogicalOp::And, std::move(left), std::move(right));
+        left =
+            std::make_unique<LogicalExpr>(span, LogicalOp::And, std::move(left), std::move(right));
     }
     return left;
 }
@@ -400,7 +406,7 @@ ExprPtr Parser::parse_logical_and()
     {                                                                                              \
         ExprPtr left = next();                                                                     \
         while (true) {                                                                             \
-            BinaryOp op {};                                                                        \
+            BinaryOp op { };                                                                       \
             switch (peek().type) {                                                                 \
                 __VA_ARGS__                                                                        \
             default:                                                                               \
@@ -409,7 +415,7 @@ ExprPtr Parser::parse_logical_and()
             const Span op_span = advance().span;                                                   \
             ExprPtr right = next();                                                                \
             const Span span = left->span.merge(right->span);                                       \
-            left = std::make_unique<BinaryExpr>(                                                    \
+            left = std::make_unique<BinaryExpr>(                                                   \
                 span, op, op_span, std::move(left), std::move(right));                             \
         }                                                                                          \
     }
@@ -419,11 +425,12 @@ ExprPtr Parser::parse_logical_and()
         op = BinaryOp::binop;                                                                      \
         break;
 
-FIRE_BINARY_LEVEL(parse_equality, parse_comparison, FIRE_CASE(EqualEqual, Equal)
-        FIRE_CASE(BangEqual, NotEqual))
+FIRE_BINARY_LEVEL(
+    parse_equality, parse_comparison, FIRE_CASE(EqualEqual, Equal) FIRE_CASE(BangEqual, NotEqual))
 
-FIRE_BINARY_LEVEL(parse_comparison, parse_bit_or, FIRE_CASE(Less, Less) FIRE_CASE(LessEqual,
-        LessEqual) FIRE_CASE(Greater, Greater) FIRE_CASE(GreaterEqual, GreaterEqual))
+FIRE_BINARY_LEVEL(parse_comparison, parse_bit_or,
+    FIRE_CASE(Less, Less) FIRE_CASE(LessEqual, LessEqual) FIRE_CASE(Greater, Greater)
+        FIRE_CASE(GreaterEqual, GreaterEqual))
 
 FIRE_BINARY_LEVEL(parse_bit_or, parse_bit_xor, FIRE_CASE(Pipe, BitOr))
 
@@ -431,20 +438,20 @@ FIRE_BINARY_LEVEL(parse_bit_xor, parse_bit_and, FIRE_CASE(Caret, BitXor))
 
 FIRE_BINARY_LEVEL(parse_bit_and, parse_shift, FIRE_CASE(Amp, BitAnd))
 
-FIRE_BINARY_LEVEL(parse_shift, parse_term, FIRE_CASE(LessLess, ShiftLeft)
-        FIRE_CASE(GreaterGreater, ShiftRight))
+FIRE_BINARY_LEVEL(
+    parse_shift, parse_term, FIRE_CASE(LessLess, ShiftLeft) FIRE_CASE(GreaterGreater, ShiftRight))
 
 FIRE_BINARY_LEVEL(parse_term, parse_factor, FIRE_CASE(Plus, Add) FIRE_CASE(Minus, Subtract))
 
-FIRE_BINARY_LEVEL(parse_factor, parse_unary, FIRE_CASE(Star, Multiply) FIRE_CASE(Slash, Divide)
-        FIRE_CASE(Percent, Modulo))
+FIRE_BINARY_LEVEL(parse_factor, parse_unary,
+    FIRE_CASE(Star, Multiply) FIRE_CASE(Slash, Divide) FIRE_CASE(Percent, Modulo))
 
 #undef FIRE_CASE
 #undef FIRE_BINARY_LEVEL
 
 ExprPtr Parser::parse_unary()
 {
-    UnaryOp op {};
+    UnaryOp op { };
     switch (peek().type) {
     case TokenType::Minus:
         op = UnaryOp::Negate;
